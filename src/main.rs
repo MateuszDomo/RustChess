@@ -1,4 +1,10 @@
+
 use bevy::prelude::*;
+
+mod fen;
+
+use fen::Fen;
+
 
 #[derive(Component)]
 struct Square{
@@ -36,7 +42,13 @@ fn setup_system( mut windows: Query<&mut Window>,mut commands: Commands) {
 
     let square_xy_positions_array: [(f32, f32); 65] = calculate_square_positions(&window,&square_dimensions);
     spawn_squares(&square_xy_positions_array, &mut commands, &square_dimensions);
-    // Initialize resources
+    let fen_string = String::from("rnb1kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+
+    let fen = Fen::new(fen_string);
+    println!("{:?}",fen.white_piece_square_pos);
+
+    println!("{:?}",fen.black_piece_square_pos);
+    // Initialize resourcesW
     let square_xy_positions = SquareXYPositions{square_positions: square_xy_positions_array};
     commands.insert_resource(square_xy_positions);
 }   
@@ -48,14 +60,14 @@ fn calculate_square_positions(window: &Window, square_dimensions: &SquareDimensi
     let bottom_left_y: f32 = (-window.width()/2.)+(square_height/2.);
     let bottom_left_x: f32  = (-window.height()/2.)+(square_width/2.);
 
-    let mut square_positions: [(f32,f32); 65] = [(0.,0.); 65];
+    let mut square_xy_positions: [(f32,f32); 65] = [(0.,0.); 65];
     for row in 0..8{
         for col in 0..8{
-            square_positions[row * 8 + col + 1] = (bottom_left_x + (col as f32 * square_width),bottom_left_y + (row as f32 * square_height));
+            square_xy_positions[row * 8 + col + 1] = (bottom_left_x + (col as f32 * square_width),bottom_left_y + (row as f32 * square_height));
         }
     }
 
-    return square_positions;
+    return square_xy_positions;
 }
 
 fn spawn_squares(square_xy_positions: &[(f32, f32); 65], commands: &mut Commands, square_dimensions: &SquareDimensions) {
@@ -76,6 +88,10 @@ fn spawn_squares(square_xy_positions: &[(f32, f32); 65], commands: &mut Commands
             }).insert(Square{square_number: square_number as u32});
         }
     }
+}
+
+fn spawn_pieces() {
+
 }
 
 fn determine_square_color(row: u32, col: u32) -> Color{
