@@ -2,6 +2,7 @@
 
 mod fen;
 mod board;
+mod spawns;
 
 use bevy::prelude::*;
 use board::Board;
@@ -19,7 +20,7 @@ pub struct Square{
 
 #[derive(Resource)]
 pub struct SquareXYPositions{
-    square_positions: [(f32,f32); 65], 
+    square_positions: [(f32,f32); 64], 
 }
 #[derive(Resource)]
 pub struct GameTextures{
@@ -82,7 +83,7 @@ fn setup_system(
     let  square_dimensions = SquareDimensions{width: 100, height: 100};
     let window = windows.single_mut();
 
-    let square_xy_positions_array: [(f32, f32); 65] = calculate_square_positions(&window,&square_dimensions);
+    let square_xy_positions_array: [(f32, f32); 64] = calculate_square_positions(&window,&square_dimensions);
     spawn_squares(&square_xy_positions_array, &mut commands, &square_dimensions);
 
     let fen_string = String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
@@ -100,29 +101,29 @@ fn setup_system(
 
 
 
-fn calculate_square_positions(window: &Window, square_dimensions: &SquareDimensions) -> [(f32, f32); 65] {
+fn calculate_square_positions(window: &Window, square_dimensions: &SquareDimensions) -> [(f32, f32); 64] {
 
     let square_height: f32 = square_dimensions.height as f32;
     let square_width: f32 = square_dimensions.width as f32;
     let bottom_left_y: f32 = (-window.width()/2.)+(square_height/2.);
     let bottom_left_x: f32  = (-window.height()/2.)+(square_width/2.);
 
-    let mut square_xy_positions: [(f32,f32); 65] = [(0.,0.); 65];
+    let mut square_xy_positions: [(f32,f32); 64] = [(0.,0.); 64];
     for row in 0..8{
         for col in 0..8{
-            square_xy_positions[row * 8 + col + 1] = (bottom_left_x + (col as f32 * square_width),bottom_left_y + (row as f32 * square_height));
+            square_xy_positions[row * 8 + col] = (bottom_left_x + (col as f32 * square_width),bottom_left_y + (row as f32 * square_height));
         }
     }
 
     return square_xy_positions;
 }
 
-fn spawn_squares(square_xy_positions: &[(f32, f32); 65], commands: &mut Commands, square_dimensions: &SquareDimensions) {
+fn spawn_squares(square_xy_positions: &[(f32, f32); 64], commands: &mut Commands, square_dimensions: &SquareDimensions) {
     let square_height: f32 = square_dimensions.height as f32;
     let square_width: f32 = square_dimensions.width as f32;
     for row in 0..8{
         for col in 0..8{
-            let square_number = row * 8 + col + 1;
+            let square_number = row * 8 + col;
             let (x_pos, y_pos) = square_xy_positions[square_number];
             commands.spawn(SpriteBundle {
                 sprite: Sprite {

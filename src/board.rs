@@ -1,3 +1,3 @@
 pub struct Board{
-    pub squares: [u8; 65],
+    pub squares: [u8; 64],
 }

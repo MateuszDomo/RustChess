@@ -3,14 +3,14 @@ use std::collections::HashMap;
 use crate::{PieceType, GameTextures};
 
 
-pub fn extract_pieces_from_fen(fen_string: &String) -> [u8; 65] {
+pub fn extract_pieces_from_fen(fen_string: &String) -> [u8; 64] {
     let piece_map: HashMap<char, PieceType> = vec![
         ('p', PieceType::Pawn),('b', PieceType::Bishop), 
         ('n', PieceType::Knight),('r', PieceType::Rook),
         ('q', PieceType::Queen),('k', PieceType::King),
     ].into_iter().collect();
-    let mut pieces: [u8; 65] = [0; 65];
-    let mut square_number = 1;
+    let mut pieces: [u8; 64] = [0; 64];
+    let mut square_number = 0;
     for fen_piece in fen_string.chars() {
         match fen_piece{
             '1'..='8' => {
@@ -23,7 +23,7 @@ pub fn extract_pieces_from_fen(fen_string: &String) -> [u8; 65] {
                 square_number += 1;
             }
             _ => {
-                pieces[square_number as usize] = *piece_map.get(&fen_piece).unwrap() as u8 | 0b00000100;
+                pieces[square_number as usize] = *piece_map.get(&fen_piece).unwrap() as u8;
                 square_number += 1
             }
         }
