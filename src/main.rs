@@ -4,8 +4,11 @@ mod fen;
 mod board;
 mod spawns;
 
+
+
 use bevy::prelude::*;
 use board::Board;
+use spawns::{ spawn_pieces};
 
 #[derive(Clone, Copy, Debug)]
  
@@ -87,12 +90,12 @@ fn setup_system(
     spawn_squares(&square_xy_positions_array, &mut commands, &square_dimensions);
 
     let fen_string = String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-
+    //PieceSpawner{ textures: game_textures, xy_positions: square_xy_positions_arrays};
     let board: Board = Board{squares: fen::extract_pieces_from_fen(&fen_string)};
-
-    for num in board.squares {
-        println!("{:b}", num);
-    }
+    spawn_pieces(&board, square_xy_positions_array, &mut commands, &game_textures);
+    // for num in board.squares {
+    //     println!("{:b}", num);
+    // }
     // Initialize resourcesW
     let square_xy_positions = SquareXYPositions{square_positions: square_xy_positions_array};
     commands.insert_resource(square_xy_positions);
