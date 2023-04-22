@@ -8,7 +8,7 @@ mod spawns;
 
 use bevy::prelude::*;
 use board::Board;
-use spawns::{ spawn_pieces};
+use spawns::PieceSpawner;
 
 #[derive(Clone, Copy, Debug)]
  
@@ -25,7 +25,7 @@ pub struct Square{
 pub struct SquareXYPositions{
     square_positions: [(f32,f32); 64], 
 }
-#[derive(Resource)]
+#[derive(Resource,Clone)]
 pub struct GameTextures{
     piece_size: u32,
     b_p: Handle<Image>,
@@ -92,7 +92,8 @@ fn setup_system(
     let fen_string = String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     //PieceSpawner{ textures: game_textures, xy_positions: square_xy_positions_arrays};
     let board: Board = Board{squares: fen::extract_pieces_from_fen(&fen_string)};
-    spawn_pieces(&board, square_xy_positions_array, &mut commands, &game_textures);
+    let piece_spawner = PieceSpawner{ xy_positions: square_xy_positions_array.clone(), game_textures: game_textures.clone(), board: board.clone()};
+    piece_spawner.spawn_pieces(&mut commands);
     // for num in board.squares {
     //     println!("{:b}", num);
     // }
