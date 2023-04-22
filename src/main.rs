@@ -90,14 +90,11 @@ fn setup_system(
     spawn_squares(&square_xy_positions_array, &mut commands, &square_dimensions);
 
     let fen_string = String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-    //PieceSpawner{ textures: game_textures, xy_positions: square_xy_positions_arrays};
     let board: Board = Board{squares: fen::extract_pieces_from_fen(&fen_string)};
-    let piece_spawner = PieceSpawner{ xy_positions: square_xy_positions_array.clone(), game_textures: game_textures.clone(), board: board.clone()};
+
+    let piece_spawner = PieceSpawner::new(game_textures.clone(), square_xy_positions_array, board);
     piece_spawner.spawn_pieces(&mut commands);
-    // for num in board.squares {
-    //     println!("{:b}", num);
-    // }
-    // Initialize resourcesW
+    
     let square_xy_positions = SquareXYPositions{square_positions: square_xy_positions_array};
     commands.insert_resource(square_xy_positions);
     commands.insert_resource(game_textures);
