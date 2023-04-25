@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
-use crate::{PieceType, GameTextures};
+use crate::{GameTextures};
 
 
 pub fn extract_pieces_from_fen(fen_string: &String) -> [u8; 64] {
-    let piece_map: HashMap<char, PieceType> = vec![
-        ('p', PieceType::Pawn),('b', PieceType::Bishop), 
-        ('n', PieceType::Knight),('r', PieceType::Rook),
-        ('q', PieceType::Queen),('k', PieceType::King),
+    let piece_map: HashMap<char, u8> = vec![
+        ('p', 1),('b', 2), 
+        ('n', 3),('r', 5),
+        ('q', 6),('k', 7),
     ].into_iter().collect();
 
     let reversed_fen_string: Vec<&str> = fen_string.split('/').rev().collect();

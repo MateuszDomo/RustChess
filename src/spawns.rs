@@ -1,7 +1,10 @@
 use bevy::prelude::*;
-use crate::{board::Board, SquareXYPositions, PieceType, GameTextures};
+use crate::{board::Board, SquareXYPositions, GameTextures};
 
-
+#[derive(Component)]
+pub struct Piece{
+    square_pos_number: u32,
+}
 
 pub struct PieceSpawner{
     pub xy_positions: [(f32,f32); 64],
@@ -47,11 +50,12 @@ impl PieceSpawner{
         commands.spawn(SpriteBundle{
             texture: pawn_texture.clone(),
             transform: Transform{
+                scale: Vec3::new(self.game_textures.piece_size, self.game_textures.piece_size, 1.),
                 translation: Vec3::new(x, y, 2.0),
                 ..default()
             },
             ..default()
-        });
+        }).insert(Piece{square_pos_number: square_number});
     }
 
     fn spawn_bishop(&self, commands: &mut Commands, square_number: u32, is_white: bool) {
@@ -64,11 +68,12 @@ impl PieceSpawner{
         commands.spawn(SpriteBundle{
             texture: pawn_texture.clone(),
             transform: Transform{
+                scale: Vec3::new(self.game_textures.piece_size, self.game_textures.piece_size, 1.),
                 translation: Vec3::new(x, y, 2.0),
                 ..default()
             },
             ..default()
-        });
+        }).insert(Piece{square_pos_number: square_number});
     } 
 
     fn spawn_knight(&self, commands: &mut Commands, square_number: u32, is_white: bool) {
@@ -81,11 +86,12 @@ impl PieceSpawner{
         commands.spawn(SpriteBundle{
             texture: pawn_texture.clone(),
             transform: Transform{
+                scale: Vec3::new(self.game_textures.piece_size, self.game_textures.piece_size, 1.),
                 translation: Vec3::new(x, y, 2.0),
                 ..default()
             },
             ..default()
-        });
+        }).insert(Piece{square_pos_number: square_number});
     }
 
     fn spawn_rook(&self, commands: &mut Commands, square_number: u32, is_white: bool) {
@@ -98,11 +104,12 @@ impl PieceSpawner{
         commands.spawn(SpriteBundle{
             texture: pawn_texture.clone(),
             transform: Transform{
+                scale: Vec3::new(self.game_textures.piece_size, self.game_textures.piece_size, 1.),
                 translation: Vec3::new(x, y, 2.0),
                 ..default()
             },
             ..default()
-        });
+        }).insert(Piece{square_pos_number: square_number});
     }
 
     fn spawn_queen(&self, commands: &mut Commands, square_number: u32, is_white: bool){
@@ -115,11 +122,12 @@ impl PieceSpawner{
         commands.spawn(SpriteBundle{
             texture: pawn_texture.clone(),
             transform: Transform{
+                scale: Vec3::new(self.game_textures.piece_size, self.game_textures.piece_size, 1.),
                 translation: Vec3::new(x, y, 2.0),
                 ..default()
             },
             ..default()
-        });
+        }).insert(Piece{square_pos_number: square_number});
     }
 
     fn spawn_king(&self, commands: &mut Commands, square_number: u32, is_white: bool){
@@ -132,11 +140,12 @@ impl PieceSpawner{
         commands.spawn(SpriteBundle{
             texture: pawn_texture.clone(),
             transform: Transform{
+                scale: Vec3::new(self.game_textures.piece_size, self.game_textures.piece_size, 1.),
                 translation: Vec3::new(x, y, 2.0),
                 ..default()
             },
             ..default()
-        });
+        }).insert(Piece{square_pos_number: square_number});
     }
 }
 

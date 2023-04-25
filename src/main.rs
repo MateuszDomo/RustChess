@@ -27,7 +27,7 @@ pub struct SquareXYPositions{
 }
 #[derive(Resource,Clone)]
 pub struct GameTextures{
-    piece_size: u32,
+    piece_size: f32,
     b_p: Handle<Image>,
     b_b: Handle<Image>,
     b_n: Handle<Image>, 
@@ -68,7 +68,7 @@ fn setup_system(
     commands.spawn(Camera2dBundle::default()); 
 
     let game_textures = GameTextures{
-        piece_size: 5,
+        piece_size: 0.75,
         b_p: asset_server.load("b_pawn.png"),
         b_b: asset_server.load("b_bishop.png"),
         b_n: asset_server.load("b_knight.png"),
