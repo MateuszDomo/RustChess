@@ -9,21 +9,19 @@ pub struct Piece{
 pub struct PieceSpawner{
     pub xy_positions: [(f32,f32); 64],
     pub game_textures: GameTextures,
-    pub board: Board,
 }
 
 impl PieceSpawner{
-    pub fn new(game_textures: GameTextures, xy_positions: [(f32, f32); 64], board: Board) -> Self{
+    pub fn new(game_textures: GameTextures, xy_positions: [(f32, f32); 64]) -> Self{
         return Self { 
             game_textures: game_textures, 
             xy_positions: xy_positions,
-            board: board,
         }
     }
-    pub fn spawn_pieces(&self, commands: &mut Commands) {
+    pub fn spawn_pieces(&self, commands: &mut Commands, board: &Board) {
 
         let mut square_number = 0;
-        for piece in self.board.squares{
+        for piece in board.squares{
             let is_white: bool = (0b00001000 & piece) == 0b00001000;
             match piece & 0b00000111{
                 1 => self.spawn_pawn(commands, square_number, is_white),

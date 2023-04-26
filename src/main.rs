@@ -42,6 +42,16 @@ pub struct GameTextures{
     w_q: Handle<Image>,
     w_k: Handle<Image>, 
 }
+
+enum SideColor {black, white}
+
+#[derive(Resource)]
+pub struct GameState{
+    board: Board,
+    selected_square: Option<u32>,
+    next_to_move: SideColor,
+}
+
 struct SquareDimensions{
     width: u32,
     height: u32,
@@ -95,8 +105,11 @@ fn setup_system(
     let fen_string = String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     let board: Board = Board{squares: fen::extract_pieces_from_fen(&fen_string)};
 
-    let piece_spawner = PieceSpawner::new(game_textures.clone(), board_layout.square_positions, board);
-    piece_spawner.spawn_pieces(&mut commands);
+    let piece_spawner = PieceSpawner::new(game_textures.clone(), board_layout.square_positions);
+    piece_spawner.spawn_pieces(&mut commands, &board);
+
+    let mut game_state = GameState{board: board, selected_square: None, next_to_move: SideColor::white};
+    commands.insert_resource(game_state);
     commands.insert_resource(board_layout);
     commands.insert_resource(game_textures);
 }   
