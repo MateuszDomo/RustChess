@@ -1,5 +1,4 @@
-
-
+mod player_input_plugin;
 mod fen;
 mod board;
 mod spawns;
@@ -8,6 +7,7 @@ mod spawns;
 
 use bevy::prelude::*;
 use board::Board;
+use player_input_plugin::PlayerInputPlugin;
 use spawns::PieceSpawner;
 
 #[derive(Clone, Copy, Debug)]
@@ -22,8 +22,9 @@ pub struct Square{
 }
 
 #[derive(Resource)]
-pub struct SquareXYPositions{
+pub struct BoardLayout{
     square_positions: [(f32,f32); 64], 
+    square_dimensions: SquareDimensions,
 }
 #[derive(Resource,Clone)]
 pub struct GameTextures{
@@ -55,6 +56,7 @@ fn main() {
             ..default()
         }),
         ..default()}))
+    .add_plugin(PlayerInputPlugin)
     .add_startup_system(setup_system)
     .run();
 }
@@ -86,17 +88,16 @@ fn setup_system(
     let  square_dimensions = SquareDimensions{width: 100, height: 100};
     let window = windows.single_mut();
 
-    let square_xy_positions_array: [(f32, f32); 64] = calculate_square_positions(&window,&square_dimensions);
-    spawn_squares(&square_xy_positions_array, &mut commands, &square_dimensions);
+    let square_xy_positions: [(f32, f32); 64] = calculate_square_positions(&window,&square_dimensions);
+    let board_layout = BoardLayout{square_positions: square_xy_positions, square_dimensions: square_dimensions };
+    spawn_squares(&board_layout.square_positions, &mut commands, &board_layout.square_dimensions);
 
     let fen_string = String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     let board: Board = Board{squares: fen::extract_pieces_from_fen(&fen_string)};
 
-    let piece_spawner = PieceSpawner::new(game_textures.clone(), square_xy_positions_array, board);
+    let piece_spawner = PieceSpawner::new(game_textures.clone(), board_layout.square_positions, board);
     piece_spawner.spawn_pieces(&mut commands);
-    
-    let square_xy_positions = SquareXYPositions{square_positions: square_xy_positions_array};
-    commands.insert_resource(square_xy_positions);
+    commands.insert_resource(board_layout);
     commands.insert_resource(game_textures);
 }   
 
