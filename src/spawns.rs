@@ -3,7 +3,7 @@ use crate::{board::Board, GameTextures};
 
 #[derive(Component)]
 pub struct Piece{
-    square_pos_number: u32,
+    pub square_pos_number: u32,
 }
 
 pub struct PieceSpawner{
