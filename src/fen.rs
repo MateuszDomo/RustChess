@@ -1,8 +1,5 @@
 use std::collections::HashMap;
 
-use crate::{GameTextures};
-
-
 pub fn extract_pieces_from_fen(fen_string: &String) -> [u8; 64] {
     let piece_map: HashMap<char, u8> = vec![
         ('p', 1),('b', 2), 

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::{board::Board, GameTextures};
+use crate::{board::Board, chess_utility::GameTextures};
 
 #[derive(Component)]
 pub struct Piece{

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{BoardLayout, board::{Board}, GameState, spawns::Piece};
+use crate::{BoardLayout, board::{Board}, piece_spawns::Piece, chess_utility::GameState};
 
 pub struct PlayerInputPlugin;
 
@@ -18,7 +18,7 @@ fn mouse_input_system(
     pieces: Query<(Entity, &mut Piece, &mut Transform)>,
     commands: Commands
 ){
-    let square_xy_positions = board_layout.square_positions;
+    let square_xy_positions = board_layout.square_xy_positions;
     let square_width = board_layout.square_dimensions.width as f32;
     let square_height = board_layout.square_dimensions.height as f32;
     if kb.just_pressed(MouseButton::Left) {
