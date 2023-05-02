@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{Square, chess_utility::SquareDimensions};
+use crate::{chess_utility::{SquareDimensions, Square}};
 
 pub fn spawn_squares(square_xy_positions: &[(f32, f32); 64], commands: &mut Commands, square_dimensions: &SquareDimensions) {
     let square_height: f32 = square_dimensions.height as f32;

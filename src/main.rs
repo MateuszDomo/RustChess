@@ -1,23 +1,17 @@
-mod player_input_plugin;
 mod chess_utility;
 mod fen;
 mod board;
 mod piece_spawns;
 mod board_layout;
 mod board_spawns;
-
-
-use bevy::prelude::*;
-use board_layout::BoardLayout;
-use chess_utility::ChessSetupPlugin;
-use player_input_plugin::PlayerInputPlugin;
-
-#[derive(Component)]
-pub struct Square{
-    square_number: u32
+mod plugins{
+    pub mod chess_startup_plugin;
+    pub mod player_input_plugin;
 }
 
-pub enum SideColor {black, white}
+use bevy::prelude::*; 
+use board_layout::BoardLayout;
+use plugins::{player_input_plugin::PlayerInputPlugin, chess_startup_plugin::ChessSetupPlugin};
 
 fn main() {
     App::new()

@@ -146,5 +146,3 @@ impl PieceSpawner{
         }).insert(Piece{square_pos_number: square_number});
     }
 }
-
-
