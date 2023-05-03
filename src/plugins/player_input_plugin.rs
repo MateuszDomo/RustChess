@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{BoardLayout, board::{Board}, piece_spawns::Piece, chess_utility::GameState};
+use crate::{BoardLayout, board::{Board}, piece_spawns::Piece, chess_utility::GameState, legal_move_generator::legal_move_generator};
 
 pub struct PlayerInputPlugin;
 
@@ -32,6 +32,7 @@ fn mouse_input_system(
                 // Select Piece
                 game_state.selected_square = Some(selected_square);
                 println!("new Selected Square is {:?}",game_state.selected_square);
+                legal_move_generator(game_state.as_ref());
             },
             Some(previously_selected_square) => {
                 if game_state.board.squares[selected_square as usize] == 0 {
@@ -46,6 +47,7 @@ fn mouse_input_system(
                     let old_square = previously_selected_square;
                     game_state.selected_square = Some(selected_square);
                     println!("switching pieces from {} to {:?}",old_square, game_state.selected_square);
+                    legal_move_generator(game_state.as_ref());
                 }else{
                     // Attack Piece
                     let old_square = previously_selected_square;
