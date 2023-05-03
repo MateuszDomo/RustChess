@@ -24,7 +24,7 @@ pub fn extract_pieces_from_fen(fen_string: &String) -> [u8; 64] {
                     square_number += 1;
                 }
                 _ => {
-                    pieces[square_number as usize] = *piece_map.get(&fen_piece).unwrap() as u8;
+                    pieces[square_number as usize] = *piece_map.get(&fen_piece).unwrap() as u8 | 0b00010000;
                     square_number += 1
                 }
             }
