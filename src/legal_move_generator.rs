@@ -36,70 +36,36 @@ fn bishop_move_generation(square: u32, game_state: &GameState) {
     let mut legal_moves: Vec<u32> = Vec::new();
     let board = &game_state.board;
     let mut i = 1;
-    let starting_rank = (square / 8) as i32 + 1;
-    let starting_file = (square % 8) as i32 + 1;
-    let selected_piece_color = board.squares[square as usize] & 0b00011000;
+    let starting_rank: i32 = (square / 8) as i32 + 1;
+    let starting_file: i32 = (square % 8) as i32 + 1;
+    let selected_piece_color: u8 = board.squares[square as usize] & 0b00011000;
 
-    println!("{}",selected_piece_color);
-    while ((starting_rank + i) <= 8) && ((starting_file - i) >= 1) {
-        //println!("{}",0b00000111 & game_state.board.squares[(((starting_rank + i - 1) * 8) + (starting_file - i - 1)) as usize]);
-        let index = ((starting_rank + i - 1) * 8) + (starting_file - i - 1);
-
-        // Not include capturing friendly pieces in legal moves
-        if (board.squares[index as usize] & 0b00011000) == selected_piece_color {
-            break;
+    let directions: [(i32,i32); 4] = [(1, -1), (1, 1), (-1, -1), (-1, 1)];
+    for (rank_dir, file_dir) in directions.iter() {
+        let mut i: i32  = 1;
+        while (starting_rank + i*rank_dir).in_range(1, 8) && (starting_file + i * file_dir).in_range(1, 8) {
+            let index: i32 = ((starting_rank + i * rank_dir - 1) * 8) + (starting_file + i * file_dir - 1);
+            let piece_color = board.squares[index as usize] & 0b00011000;
+            if piece_color == selected_piece_color {
+                break;
+            }
+            legal_moves.push(index as u32);
+            // Not continue when piece found because legal bishop moves cannot phase through pieces
+            let piece_type = board.squares[index as usize] & 0b00011000;
+            if piece_type != 0 {
+                break;
+            }
+            i += 1;
         }
-        println!("{}",index);
-        legal_moves.push(index as u32);
-        if ((board.squares[index as usize] & 0b00000111)) != 0 {
-            break;
-        }
-        i += 1;
     }
-    i = 1;
-    while ((starting_rank + i) <= 8) && (starting_file + i) <= 8 {
-        //println!("{}",0b00000111 & game_state.board.squares[(((starting_rank + i - 1) * 8) + (starting_file + i - 1)) as usize]);
-        let index = ((starting_rank + i - 1) * 8) + (starting_file + i - 1);
+    println!("{:?}", legal_moves);
+}
+trait InRange{
+    fn in_range(self, a: Self, b: Self) -> bool;
+}
 
-        // Not include capturing friendly pieces in legal moves
-        if (board.squares[index as usize] & 0b00011000) == selected_piece_color {
-            break;
-        }
-        legal_moves.push(index as u32);
-        if ((board.squares[index as usize] & 0b00000111)) != 0 {
-            break;
-        }
-        i += 1;
+impl InRange for i32 {
+    fn in_range(self, a: Self, b: Self) -> bool {
+        return self >= a && self <= b;
     }
-    i = 1;
-    while ((starting_rank - i) >= 1) && (starting_file - i) >= 1 {
-        //println!("{}",0b00000111 & game_state.board.squares[(((starting_rank - i - 1) * 8) + (starting_file - i - 1)) as usize]);
-        let index = ((starting_rank - i - 1) * 8) + (starting_file - i - 1);
-
-        // Not include capturing friendly pieces in legal moves
-        if (board.squares[index as usize] & 0b00011000) == selected_piece_color {
-            break;
-        }
-        legal_moves.push(index as u32);
-        if ((board.squares[index as usize] & 0b00000111)) != 0 {
-            break;
-        }
-        i += 1;
-    }
-    i = 1;
-    while ((starting_rank - i) >= 1) && (starting_file + i) <= 8 {
-        //println!("{}",0b00000111 & game_state.board.squares[(((starting_rank + i - 1) * 8) + (starting_file + i - 1)) as usize]);
-        let index = ((starting_rank - i - 1) * 8) + (starting_file + i - 1);
-
-        // Not include capturing friendly pieces in legal moves
-        if (board.squares[index as usize] & 0b00011000) == selected_piece_color {
-            break;
-        }
-        legal_moves.push(index as u32);
-        if ((board.squares[index as usize] & 0b00000111)) != 0 {
-            break;
-        }
-        i += 1;
-    }
-    println!("{:?}",legal_moves);
 }
