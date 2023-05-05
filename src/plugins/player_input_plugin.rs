@@ -1,14 +1,15 @@
 use bevy::prelude::*;
-
-use crate::{BoardLayout, board::{Board}, piece_spawns::Piece, chess_utility::GameState, legal_move_generator::legal_move_generator};
+use crate::{BoardLayout, board::{Board}, piece_spawns::Piece, chess_utility::{GameState, HighlightLegalMovesEvent}, selected_square::SelectedSquare};
 
 pub struct PlayerInputPlugin;
 
-impl Plugin for PlayerInputPlugin{
+impl Plugin for PlayerInputPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(mouse_input_system);
     }
 }
+
+
 
 fn mouse_input_system(
     kb: Res<Input<MouseButton>>, 
@@ -16,52 +17,48 @@ fn mouse_input_system(
     windows: Query<&mut Window>, 
     mut game_state: ResMut<GameState>,
     pieces: Query<(Entity, &mut Piece, &mut Transform)>,
-    commands: Commands
-){
+    commands: Commands,
+    mut highlight_legal_move_event: EventWriter<HighlightLegalMovesEvent>,
+) {
     let square_xy_positions = board_layout.square_xy_positions;
     let square_width = board_layout.square_dimensions.width as f32;
     let square_height = board_layout.square_dimensions.height as f32;
     if kb.just_pressed(MouseButton::Left) {
     let selected_square: u32 = find_selected_square(windows, square_width, square_height, square_xy_positions);
-        match game_state.selected_square {
+    let selected_square_struct = game_state.selected_square.clone();
+        match selected_square_struct {
             None => {
                 if game_state.board.squares[selected_square as usize] == 0 {
                     println!("no pieces selected");
                     return;
                 }
                 // Select Piece
-                game_state.selected_square = Some(selected_square);
-                println!("new Selected Square is {:?}",game_state.selected_square);
-                legal_move_generator(game_state.as_ref());
+                game_state.selected_square = Some(SelectedSquare::new(selected_square, game_state.as_ref()));
+                highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: true});
             },
             Some(previously_selected_square) => {
                 if game_state.board.squares[selected_square as usize] == 0 {
                     // Move Piece
-                    let old_square = previously_selected_square;
                     game_state.selected_square = None;
-                    println!("moving piece at {} to {:?}",old_square, selected_square); 
-                    move_piece(pieces, previously_selected_square, selected_square, square_xy_positions, commands, &mut game_state.board);
+                    move_piece(pieces, previously_selected_square.square_number, selected_square, square_xy_positions, commands, &mut game_state.board);
+                    highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: false});
                 }
-                else if (game_state.board.squares[selected_square as usize] & 0b00001000) == (game_state.board.squares[previously_selected_square as usize]& 0b00001000) {
+                else if (game_state.board.squares[selected_square as usize] & 0b00001000) == (game_state.board.squares[previously_selected_square.square_number as usize]& 0b00001000) {
                     // Switch Piece
-                    let old_square = previously_selected_square;
-                    game_state.selected_square = Some(selected_square);
-                    println!("switching pieces from {} to {:?}",old_square, game_state.selected_square);
-                    legal_move_generator(game_state.as_ref());
+                    game_state.selected_square = Some(SelectedSquare::new(selected_square, game_state.as_ref()));
+                    highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: true});
                 }else{
                     // Attack Piece
-                    let old_square = previously_selected_square;
                     game_state.selected_square = None;
-                    println!("attacking pieces from {} to {:?} ",old_square, selected_square);
-                    move_piece(pieces, previously_selected_square, selected_square, square_xy_positions, commands, &mut game_state.board);
+                    move_piece(pieces, previously_selected_square.square_number, selected_square, square_xy_positions, commands, &mut game_state.board);
+                    highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: false});
                 }
                 
             },
         }
     } else if kb.just_pressed(MouseButton::Right) {
-        // Deselect Piece
         game_state.selected_square = None;
-        println!("Deselected Square. Val of Square is now {:?}", game_state.selected_square);
+        highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: false});
     }
 }
 

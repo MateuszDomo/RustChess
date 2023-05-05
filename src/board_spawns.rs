@@ -24,7 +24,6 @@ pub fn spawn_squares(square_xy_positions: &[(f32, f32); 64], commands: &mut Comm
 
 
 fn determine_square_color(row: u32, col: u32) -> Color{
-
     let color = if (row+col) % 2 == 0{
         Color::rgb(0.5, 0.0, 0.5)
     }else{

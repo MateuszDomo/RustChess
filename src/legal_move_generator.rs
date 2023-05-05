@@ -1,41 +1,37 @@
-use bevy::prelude::*;
-
 use crate::chess_utility::GameState; 
 
-
-
-pub fn legal_move_generator(game_state: &GameState) {
-    let square = game_state.selected_square.expect("selected square should exist");
-    let piece = game_state.board.squares[square as usize];
+pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<u32>{
+    let piece = game_state.board.squares[square_number as usize];
+    let filler: Vec<u32> = Vec::new();
     match piece & 0b00000111{
         1 => {
-
+            return filler;
         }
         2 => {
-            bishop_move_generation(square, game_state);
+            return bishop_move_generation(square_number, game_state);
         }
         3 => {
-
+            return filler;
         }
         5 => {
-
+            return filler;
         }
         6 => {
-
+            return filler;
         }
         7 => {
-
+            return filler;
         }
         _ => {
             println!("Should not reach here");
+            panic!();
         }
     }
 }
 
-fn bishop_move_generation(square: u32, game_state: &GameState) {
+fn bishop_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
     let mut legal_moves: Vec<u32> = Vec::new();
     let board = &game_state.board;
-    let mut i = 1;
     let starting_rank: i32 = (square / 8) as i32 + 1;
     let starting_file: i32 = (square % 8) as i32 + 1;
     let selected_piece_color: u8 = board.squares[square as usize] & 0b00011000;
@@ -59,6 +55,7 @@ fn bishop_move_generation(square: u32, game_state: &GameState) {
         }
     }
     println!("{:?}", legal_moves);
+    return legal_moves;
 }
 trait InRange{
     fn in_range(self, a: Self, b: Self) -> bool;
