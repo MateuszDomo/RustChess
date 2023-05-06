@@ -37,26 +37,30 @@ fn mouse_input_system(
                 highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: true});
             },
             Some(previously_selected_square) => {
-                if game_state.board.squares[selected_square as usize] == 0 {
+                if previously_selected_square.legal_moves.contains(&selected_square) && game_state.board.squares[selected_square as usize] == 0 {
                     // Move Piece
                     game_state.selected_square = None;
                     move_piece(pieces, previously_selected_square.square_number, selected_square, square_xy_positions, commands, &mut game_state.board);
                     highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: false});
-                }
-                else if (game_state.board.squares[selected_square as usize] & 0b00001000) == (game_state.board.squares[previously_selected_square.square_number as usize]& 0b00001000) {
+                } else if (game_state.board.squares[selected_square as usize]) != (game_state.board.squares[previously_selected_square.square_number as usize]) && (game_state.board.squares[selected_square as usize] & 0b00001000) == (game_state.board.squares[previously_selected_square.square_number as usize] & 0b00001000) {
                     // Switch Piece
                     game_state.selected_square = Some(SelectedSquare::new(selected_square, game_state.as_ref()));
                     highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: true});
-                }else{
+                } else if previously_selected_square.legal_moves.contains(&selected_square) {
                     // Attack Piece
                     game_state.selected_square = None;
                     move_piece(pieces, previously_selected_square.square_number, selected_square, square_xy_positions, commands, &mut game_state.board);
+                    highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: false});
+                } else {
+                    // Deselect
+                    game_state.selected_square = None;
                     highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: false});
                 }
                 
             },
         }
     } else if kb.just_pressed(MouseButton::Right) {
+        // Deselect
         game_state.selected_square = None;
         highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: false});
     }

@@ -5,7 +5,7 @@ pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<u
     let filler: Vec<u32> = Vec::new();
     match piece & 0b00000111{
         1 => {
-            return filler;
+            return pawn_move_generation(square_number, game_state);
         }
         2 => {
             return bishop_move_generation(square_number, game_state);
@@ -27,6 +27,18 @@ pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<u
             panic!();
         }
     }
+}
+
+fn pawn_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
+    let mut legal_moves: Vec<u32> = Vec::new();
+    let board = &game_state.board;
+    let selected_piece_color: u8 = board.squares[square as usize] & 0b00011000;
+    
+    if (square + 8).in_range(0, 63) && board.squares[(square + 8) as usize] == 0 {
+        legal_moves.push(square + 8);
+    }
+    println!("{:?}", legal_moves);
+    return legal_moves;
 }
 
 fn bishop_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
@@ -57,11 +69,21 @@ fn bishop_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
     println!("{:?}", legal_moves);
     return legal_moves;
 }
-trait InRange{
+trait InRangeI32{
     fn in_range(self, a: Self, b: Self) -> bool;
 }
 
-impl InRange for i32 {
+impl InRangeI32 for i32 {
+    fn in_range(self, a: Self, b: Self) -> bool {
+        return self >= a && self <= b;
+    }
+}
+
+trait InRangeU32{
+    fn in_range(self, a: Self, b: Self) -> bool;
+}
+
+impl InRangeU32 for u32 {
     fn in_range(self, a: Self, b: Self) -> bool {
         return self >= a && self <= b;
     }
