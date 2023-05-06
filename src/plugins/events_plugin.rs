@@ -25,12 +25,15 @@ fn highlight_legal_moves_system(
         if !event.highlight_new_moves {
             break;
         }
-        let legal_moves = &game_state.selected_square.as_ref().expect("Should be selected square if trying to highlight moves").legal_moves;
-        for (square, mut sprite) in query.iter_mut() {
-            if legal_moves.contains(&square.square_number) {
-                sprite.color = Color::rgb(1.0, 0.0, 0.5);
+        let legal_moves = &event.legal_moves;
+        if let Some(legal_moves) = legal_moves {
+            for (square, mut sprite) in query.iter_mut() {
+                if legal_moves.contains(&square.square_number) {
+                    sprite.color = Color::rgb(1.0, 0.0, 0.5);
+                }
             }
         }
+        
     }
 }
 

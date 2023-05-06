@@ -34,8 +34,14 @@ fn pawn_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
     let board = &game_state.board;
     let selected_piece_color: u8 = board.squares[square as usize] & 0b00011000;
     
-    if (square + 8).in_range(0, 63) && board.squares[(square + 8) as usize] == 0 {
-        legal_moves.push(square + 8);
+    let square_move: i32 = if selected_piece_color == 0b00001000 {
+        square as i32 + 8
+    } else {
+        square as i32 -8
+    };
+
+    if (square_move).in_range(0, 63) && board.squares[(square_move) as usize] == 0 {
+        legal_moves.push(square_move as u32);
     }
     println!("{:?}", legal_moves);
     return legal_moves;
@@ -50,7 +56,7 @@ fn bishop_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
 
     let directions: [(i32,i32); 4] = [(1, -1), (1, 1), (-1, -1), (-1, 1)];
     for (rank_dir, file_dir) in directions.iter() {
-        let mut i: i32  = 1;
+        let mut i: i32  = 1; 
         while (starting_rank + i*rank_dir).in_range(1, 8) && (starting_file + i * file_dir).in_range(1, 8) {
             let index: i32 = ((starting_rank + i * rank_dir - 1) * 8) + (starting_file + i * file_dir - 1);
             let piece_color = board.squares[index as usize] & 0b00011000;

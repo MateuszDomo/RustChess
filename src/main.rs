@@ -4,7 +4,6 @@ mod board;
 mod piece_spawns;
 mod board_layout;
 mod board_spawns;
-mod selected_square;
 mod legal_move_generator;
 mod plugins{
     pub mod chess_startup_plugin;

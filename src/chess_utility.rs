@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{board::Board, selected_square::SelectedSquare};
+use crate::{board::Board};
 
 #[derive(Resource,Clone)]
 pub struct GameTextures{
@@ -21,7 +21,7 @@ pub struct GameTextures{
 #[derive(Resource)]
 pub struct GameState{
     pub board: Board,
-    pub selected_square: Option<SelectedSquare>,
+    pub selected_square: Option<u32>,
     pub next_to_move: SideColor,
 }
 
@@ -39,4 +39,5 @@ pub enum SideColor {black, white}
 
 pub struct HighlightLegalMovesEvent {
     pub highlight_new_moves: bool,
+    pub legal_moves: Option<Vec<u32>>,
 }
