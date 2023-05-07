@@ -22,7 +22,17 @@ pub struct GameTextures{
 pub struct GameState{
     pub board: Board,
     pub selected_square: Option<u32>,
-    pub next_to_move: SideColor,
+    pub next_side_color_to_move: SideColor,
+}
+
+impl GameState {
+    pub fn flip_turn(&mut self) {
+        if self.next_side_color_to_move == SideColor::White {
+            self.next_side_color_to_move = SideColor::Black;
+        }else{
+            self.next_side_color_to_move = SideColor::White;
+        }
+    }
 }
 
 pub struct SquareDimensions{
@@ -35,7 +45,8 @@ pub struct Square{
     pub square_number: u32
 }
 
-pub enum SideColor {black, white}
+#[derive(PartialEq)]
+pub enum SideColor {Black, White}
 
 pub struct HighlightLegalMovesEvent {
     pub highlight_new_moves: bool,

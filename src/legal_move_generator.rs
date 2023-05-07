@@ -43,7 +43,6 @@ fn pawn_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
     if (square_move).in_range(0, 63) && board.squares[(square_move) as usize] == 0 {
         legal_moves.push(square_move as u32);
     }
-    println!("{:?}", legal_moves);
     return legal_moves;
 }
 
@@ -72,24 +71,14 @@ fn bishop_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
             i += 1;
         }
     }
-    println!("{:?}", legal_moves);
     return legal_moves;
 }
+
 trait InRangeI32{
     fn in_range(self, a: Self, b: Self) -> bool;
 }
 
 impl InRangeI32 for i32 {
-    fn in_range(self, a: Self, b: Self) -> bool {
-        return self >= a && self <= b;
-    }
-}
-
-trait InRangeU32{
-    fn in_range(self, a: Self, b: Self) -> bool;
-}
-
-impl InRangeU32 for u32 {
     fn in_range(self, a: Self, b: Self) -> bool {
         return self >= a && self <= b;
     }

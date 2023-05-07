@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::chess_utility::{HighlightLegalMovesEvent, GameState, Square};
+use crate::chess_utility::{HighlightLegalMovesEvent, Square};
 pub struct EventsPlugin ;
 
 impl Plugin for EventsPlugin {
@@ -11,7 +11,6 @@ impl Plugin for EventsPlugin {
 
 fn highlight_legal_moves_system(
     mut events: EventReader<HighlightLegalMovesEvent>, 
-    game_state: Res<GameState>,
     mut query: Query<(&Square,  &mut Sprite)>
 ) {
 
@@ -33,7 +32,6 @@ fn highlight_legal_moves_system(
                 }
             }
         }
-        
     }
 }
 

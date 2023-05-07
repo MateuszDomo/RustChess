@@ -42,7 +42,7 @@ fn chess_setup_system(
     let piece_spawner = PieceSpawner::new(game_textures.clone(), board_layout.square_xy_positions);
     piece_spawner.spawn_pieces(&mut commands, &board);
 
-    let game_state = GameState{board: board, selected_square: None, next_to_move: SideColor::white};
+    let game_state = GameState{board: board, selected_square: None, next_side_color_to_move: SideColor::White};
     
     commands.insert_resource(game_state);
     commands.insert_resource(board_layout);

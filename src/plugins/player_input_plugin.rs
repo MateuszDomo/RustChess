@@ -9,8 +9,6 @@ impl Plugin for PlayerInputPlugin {
     }
 }
 
-
-
 fn mouse_input_system(
     kb: Res<Input<MouseButton>>, 
     board_layout: Res<BoardLayout>,
@@ -24,6 +22,7 @@ fn mouse_input_system(
     let square_width = board_layout.square_dimensions.width as f32;
     let square_height = board_layout.square_dimensions.height as f32;
     if kb.just_pressed(MouseButton::Left) {
+        
         let selected_square: u32 = find_selected_square(windows, square_width, square_height, square_xy_positions);
         match game_state.selected_square {
             None => {
@@ -31,13 +30,20 @@ fn mouse_input_system(
                     println!("no pieces selected");
                     return;
                 }
-                // Select Piecess
+
+                // Ensures a player only makes a move if its their turn
+                if game_state.board.piece_color_to_side_color(selected_square) != game_state.next_side_color_to_move {
+                    println!("Not this side's turn!");
+                    return;
+                }
+
+                // Select Pieces
                 let legal_moves = legal_move_generator(game_state.as_ref(), selected_square);
                 game_state.selected_square = Some(selected_square);
                 highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: true, legal_moves: Some(legal_moves)});
             },
             Some(previously_selected_square) => {
-
+                
                 // Switch Pieces
                 if (game_state.board.squares[selected_square as usize] & 0b00011000) == (game_state.board.squares[previously_selected_square as usize] & 0b00011000) && selected_square != previously_selected_square {
                     let legal_moves = legal_move_generator(game_state.as_ref(), selected_square);
@@ -51,13 +57,12 @@ fn mouse_input_system(
                 // Attack/Move
                 if legal_moves.contains(&selected_square) {
                     move_piece(pieces, previously_selected_square, selected_square, square_xy_positions, commands, &mut game_state.board);
+                    game_state.flip_turn();
                 }
 
                 // Deselect
                 game_state.selected_square = None;
                 highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: false, legal_moves: None});
-
-                
             },
         }
     } else if kb.just_pressed(MouseButton::Right) {
@@ -90,6 +95,7 @@ fn find_selected_square(mut windows: Query<&mut Window>, square_width: f32, squa
     let mut square: u32 = 0;
 
     if let Some(pos) = window.cursor_position(){
+        // Minus 400 because middle of board is (0,0) not (400,400)
         let pos: Vec2 = Vec2 { x: pos.x - 400., y: pos.y - 400.};
         for (index,square_xy) in square_xy_positions.iter().enumerate() {
             let x_bounds_met = (((*square_xy).0 - square_width/2.) < (pos.x)) &&  ((pos.x) < ((*square_xy).0 + square_width/2.));
