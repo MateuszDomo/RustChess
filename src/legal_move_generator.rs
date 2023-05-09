@@ -39,11 +39,32 @@ fn pawn_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
     } else {
         square as i32 -8
     };
-
     if (square_move).in_range(0, 63) && board.squares[(square_move) as usize] == 0 {
         legal_moves.push(square_move as u32);
     }
+
+    let starting_rank = (square / 8) + 1;
+    if !is_pawn_starting_position(starting_rank, selected_piece_color) {
+        return legal_moves;
+    }
+
+    let square_move: i32 = if selected_piece_color == 0b00001000 {
+        square as i32 + 16
+    } else {
+        square as i32 -16
+    };
+    if (square_move).in_range(0, 63) && board.squares[(square_move) as usize] == 0 {
+        legal_moves.push(square_move as u32);
+    }
+
     return legal_moves;
+}
+
+fn is_pawn_starting_position(rank: u32, selected_piece_color: u8) -> bool {
+    match (rank,selected_piece_color){
+        (2,0b00001000) | (7,0b00010000) => return true,
+        _ => return false,
+    }
 }
 
 fn bishop_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{

@@ -33,8 +33,6 @@ impl PieceSpawner{
                 _ => (),
             }
             square_number += 1;
-  
-         
         }
     }
     // make game textures and square positions in struct
@@ -49,7 +47,7 @@ impl PieceSpawner{
             texture: pawn_texture.clone(),
             transform: Transform{
                 scale: Vec3::new(self.game_textures.piece_size, self.game_textures.piece_size, 1.),
-                translation: Vec3::new(x, y, 2.0),
+                translation: Vec3::new(x, y, 3.0),
                 ..default()
             },
             ..default()
@@ -67,7 +65,7 @@ impl PieceSpawner{
             texture: pawn_texture.clone(),
             transform: Transform{
                 scale: Vec3::new(self.game_textures.piece_size, self.game_textures.piece_size, 1.),
-                translation: Vec3::new(x, y, 2.0),
+                translation: Vec3::new(x, y, 3.0),
                 ..default()
             },
             ..default()
@@ -85,7 +83,7 @@ impl PieceSpawner{
             texture: pawn_texture.clone(),
             transform: Transform{
                 scale: Vec3::new(self.game_textures.piece_size, self.game_textures.piece_size, 1.),
-                translation: Vec3::new(x, y, 2.0),
+                translation: Vec3::new(x, y, 3.0),
                 ..default()
             },
             ..default()
@@ -103,7 +101,7 @@ impl PieceSpawner{
             texture: pawn_texture.clone(),
             transform: Transform{
                 scale: Vec3::new(self.game_textures.piece_size, self.game_textures.piece_size, 1.),
-                translation: Vec3::new(x, y, 2.0),
+                translation: Vec3::new(x, y, 3.0),
                 ..default()
             },
             ..default()
@@ -121,7 +119,7 @@ impl PieceSpawner{
             texture: pawn_texture.clone(),
             transform: Transform{
                 scale: Vec3::new(self.game_textures.piece_size, self.game_textures.piece_size, 1.),
-                translation: Vec3::new(x, y, 2.0),
+                translation: Vec3::new(x, y, 3.0),
                 ..default()
             },
             ..default()
@@ -139,7 +137,7 @@ impl PieceSpawner{
             texture: pawn_texture.clone(),
             transform: Transform{
                 scale: Vec3::new(self.game_textures.piece_size, self.game_textures.piece_size, 1.),
-                translation: Vec3::new(x, y, 2.0),
+                translation: Vec3::new(x, y, 3.0),
                 ..default()
             },
             ..default()

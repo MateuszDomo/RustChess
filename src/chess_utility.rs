@@ -44,6 +44,8 @@ pub struct SquareDimensions{
 pub struct Square{
     pub square_number: u32
 }
+#[derive(Component)]
+pub struct HighlightedSquare;
 
 #[derive(PartialEq)]
 pub enum SideColor {Black, White}
