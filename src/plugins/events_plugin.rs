@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{chess_utility::{HighlightLegalMovesEvent, Square, HighlightedSquare}, board_layout::{BoardLayout, self}};
+use crate::{chess_utility::{HighlightLegalMovesEvent, HighlightedSquare}, board_layout::{BoardLayout}};
 pub struct EventsPlugin ;
 
 impl Plugin for EventsPlugin {
@@ -32,7 +32,7 @@ fn highlight_legal_moves_system(
                 let (x_pos, y_pos) = board_layout.square_xy_positions[*legal_move_square as usize];
                 commands.spawn(SpriteBundle {
                     sprite: Sprite {
-                        color: Color::Rgba { red: 1., green: 0., blue: 0., alpha: 0.75 },
+                        color: Color::Rgba { red: 1., green: 0., blue: 0., alpha: 0.65 },
                         custom_size: Some(Vec2::new(board_layout.square_dimensions.width as f32, board_layout.square_dimensions.height as f32)),
                         ..default()
                     },
@@ -40,9 +40,6 @@ fn highlight_legal_moves_system(
                     ..default()
                 }).insert(HighlightedSquare); 
             }
-
-                
-            
         }
     }
 }

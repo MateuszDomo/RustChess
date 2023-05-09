@@ -54,7 +54,7 @@ fn mouse_input_system(
 
                 let legal_moves = legal_move_generator(game_state.as_ref(), previously_selected_square);
 
-                // Attack/Move
+                // Capture/Move
                 if legal_moves.contains(&selected_square) {
                     move_piece(pieces, previously_selected_square, selected_square, square_xy_positions, commands, &mut game_state.board);
                     game_state.flip_turn();
