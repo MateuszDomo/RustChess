@@ -58,7 +58,7 @@ fn pawn_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
         }
     }
     
-    if !is_pawn_starting_position(starting_rank, selected_piece_color) {
+    if !is_pawn_starting_position(starting_rank, selected_piece_color) || board.squares[single_square_advance_square as usize] != 0 {
         return legal_moves;
     }
 
