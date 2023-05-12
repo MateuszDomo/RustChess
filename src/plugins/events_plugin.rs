@@ -29,6 +29,7 @@ fn highlight_legal_moves_system(
         let legal_moves = &event.legal_moves;
         if let Some(legal_moves) = legal_moves {
             for legal_move_square in legal_moves {
+                println!("{}",legal_move_square);
                 let (x_pos, y_pos) = board_layout.square_xy_positions[*legal_move_square as usize];
                 commands.spawn(SpriteBundle {
                     sprite: Sprite {
@@ -36,7 +37,7 @@ fn highlight_legal_moves_system(
                         custom_size: Some(Vec2::new(board_layout.square_dimensions.width as f32, board_layout.square_dimensions.height as f32)),
                         ..default()
                     },
-                    transform: Transform::from_translation(Vec3::new(x_pos, y_pos, 0.)),
+                transform: Transform::from_translation(Vec3::new(x_pos, y_pos, 3.)),
                     ..default()
                 }).insert(HighlightedSquare); 
             }
