@@ -2,7 +2,6 @@ use crate::chess_utility::GameState;
 
 pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<u32>{
     let piece = game_state.board.squares[square_number as usize];
-    let filler: Vec<u32> = Vec::new();
     match piece & 0b00000111{
         1 => {
             return pawn_move_generation(square_number, game_state);
@@ -11,7 +10,7 @@ pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<u
             return bishop_move_generation(square_number, game_state);
         }
         3 => {
-            return filler;
+            return knight_move_generation(square_number, game_state);
         }
         5 => {
             return rook_move_generation(square_number, game_state);
@@ -49,8 +48,6 @@ fn pawn_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
     let left_square_capture_square = single_square_advance_square - 1;
     let right_square_capture_file = starting_file + 1;
     let right_square_capture_square = single_square_advance_square + 1;
-  
-
   
     if  single_square_advance_rank.in_range(1,8) {
         if (left_square_capture_file).in_range(1,8) && board.squares[left_square_capture_square as usize] != 0 && selected_piece_color != (board.squares[left_square_capture_square as usize] & 0b00011000) {
@@ -108,6 +105,30 @@ fn bishop_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
             i += 1;
         }
     }
+    return legal_moves;
+}
+
+fn knight_move_generation(square: u32, game_state: &GameState) -> Vec<u32> {
+    let mut legal_moves: Vec<u32> = Vec::new();
+    let board = &game_state.board;
+    let starting_rank: i32 = (square / 8) as i32 + 1;
+    let starting_file: i32 = (square % 8) as i32 + 1;
+    let selected_piece_color: u8 = board.squares[square as usize] & 0b00011000;
+
+    let directions: [(i32,i32); 4] = [(2,-1), (2,1), (-2,1), (-2,-1)];
+    for (rank_dir,file_dir) in directions {
+
+        if (starting_rank + rank_dir).in_range(1, 8) && (starting_file + file_dir).in_range(1, 8) {
+            let index: i32 = ((starting_rank + rank_dir - 1) * 8) + (starting_file + file_dir - 1);
+            let piece_color = board.squares[index as usize] & 0b00011000;
+            if piece_color == selected_piece_color {
+                continue;
+            }
+            legal_moves.push_square_from_rank_and_file((starting_rank + rank_dir) as u32, (starting_file + file_dir) as u32);
+        }
+    }
+
+
     return legal_moves;
 }
 
@@ -179,7 +200,6 @@ fn king_move_generation(square: u32, game_state: &GameState) -> Vec<u32> {
 
         if (starting_rank + rank_dir).in_range(1, 8) && (starting_file + file_dir).in_range(1, 8) {
             let index: i32 = ((starting_rank + rank_dir - 1) * 8) + (starting_file + file_dir - 1);
-            println!("{}",index);
             let piece_color = board.squares[index as usize] & 0b00011000;
             if piece_color == selected_piece_color {
                 continue;
