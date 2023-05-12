@@ -14,22 +14,21 @@ pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<u
             return filler;
         }
         5 => {
-            return filler;
+            return rook_move_generation(square_number, game_state);
         }
         6 => {
-            return filler;
+            return queen_move_generation(square_number, game_state);
         }
         7 => {
             return filler;
         }
         _ => {
-            println!("Should not reach here");
-            panic!();
+            panic!("Piece should have a valid piece type");
         }
     }
 }
 
-// TODO en passant / diagonal capture
+// TODO en passant
 fn pawn_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
     let mut legal_moves: Vec<u32> = Vec::new();
     let board = &game_state.board;
@@ -131,6 +130,63 @@ fn bishop_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
 
 trait InRangeI32{
     fn in_range(self, a: Self, b: Self) -> bool;
+}
+
+fn queen_move_generation(square: u32, game_state: &GameState) -> Vec<u32> {
+    let mut legal_moves: Vec<u32> = Vec::new();
+    let board = &game_state.board;
+    let starting_rank: i32 = (square / 8) as i32 + 1;
+    let starting_file: i32 = (square % 8) as i32 + 1;
+    let selected_piece_color: u8 = board.squares[square as usize] & 0b00011000;
+
+    let directions: [(i32,i32); 8] = [(1, -1), (1, 1), (-1, -1), (-1, 1), (1, 0), (-1, 0), (0, 1), (0, -1)];
+    for (rank_dir, file_dir) in directions.iter() {
+        let mut i: i32  = 1; 
+        while (starting_rank + i*rank_dir).in_range(1, 8) && (starting_file + i * file_dir).in_range(1, 8) {
+            let index: i32 = ((starting_rank + i * rank_dir - 1) * 8) + (starting_file + i * file_dir - 1);
+            let piece_color = board.squares[index as usize] & 0b00011000;
+            if piece_color == selected_piece_color {
+                break;
+            }
+            legal_moves.push(index as u32);
+            // Not continue when piece found because legal bishop moves cannot phase through pieces
+            let piece_type = board.squares[index as usize] & 0b00011000;
+            if piece_type != 0 {
+                break;
+            }
+            i += 1;
+        }
+    }
+    return legal_moves;
+    
+}
+
+fn rook_move_generation(square: u32, game_state: &GameState) -> Vec<u32> {
+    let mut legal_moves: Vec<u32> = Vec::new();
+    let board = &game_state.board;
+    let starting_rank: i32 = (square / 8) as i32 + 1;
+    let starting_file: i32 = (square % 8) as i32 + 1;
+    let selected_piece_color: u8 = board.squares[square as usize] & 0b00011000;
+
+let directions: [(i32,i32); 4] = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+    for (rank_dir, file_dir) in directions.iter() {
+        let mut i: i32  = 1; 
+        while (starting_rank + i*rank_dir).in_range(1, 8) && (starting_file + i * file_dir).in_range(1, 8) {
+            let index: i32 = ((starting_rank + i * rank_dir - 1) * 8) + (starting_file + i * file_dir - 1);
+            let piece_color = board.squares[index as usize] & 0b00011000;
+            if piece_color == selected_piece_color {
+                break;
+            }
+            legal_moves.push(index as u32);
+            // Not continue when piece found because legal bishop moves cannot phase through pieces
+            let piece_type = board.squares[index as usize] & 0b00011000;
+            if piece_type != 0 {
+                break;
+            }
+            i += 1;
+        }
+    }
+    return legal_moves;
 }
 
 impl InRangeI32 for i32 {
