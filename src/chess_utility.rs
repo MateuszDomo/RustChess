@@ -50,6 +50,15 @@ pub struct HighlightedSquare;
 #[derive(PartialEq)]
 pub enum SideColor {Black, White}
 
+impl SideColor {
+    pub fn sideColorToU8(&self) -> u8 {
+        match self {
+            SideColor::White => return 0b00001000,
+            SideColor::Black => return 0b00010000,
+        }
+    }
+}
+
 pub struct HighlightLegalMovesEvent {
     pub highlight_new_moves: bool,
     pub legal_moves: Option<Vec<u32>>,
