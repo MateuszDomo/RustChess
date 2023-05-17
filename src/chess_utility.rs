@@ -51,7 +51,7 @@ pub struct HighlightedSquare;
 pub enum SideColor {Black, White}
 
 impl SideColor {
-    pub fn sideColorToU8(&self) -> u8 {
+    pub fn side_color_to_u8(&self) -> u8 {
         match self {
             SideColor::White => return 0b00001000,
             SideColor::Black => return 0b00010000,

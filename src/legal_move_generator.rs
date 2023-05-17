@@ -1,77 +1,9 @@
-use crate::{chess_utility::GameState, board::Board}; 
+use crate::{chess_utility::GameState, attack_bitmap::AttackMap}; 
 
-pub struct AttackMap {
-    pub attack_bitmap: u64,
-}
-
-impl AttackMap {
-
-    pub fn new(board: &Board, friendly_color: u8) -> Self {
-        let mut sliding_pieces_bitmap: u64 = 0;
-        for i in 0..64 {
-            let piece = board.squares[i as usize];
-            if piece & 0b00011000 == friendly_color {
-                continue
-            }
-            match piece & 0b00000111 {
-                2 => {
-                    sliding_pieces_bitmap |= Self::generate_sliding_pieces_bitmap(piece, i / 8 + 1, i % 8 + 1, board);
-                }
-                _ => continue,
-            }
-        }
-        return AttackMap {attack_bitmap: sliding_pieces_bitmap};
-    }
-
-    fn generate_sliding_pieces_bitmap(piece: u8, starting_rank: i32, starting_file: i32, board: &Board) -> u64 {
-
-        let piece_type = piece & 0b00000111;
-        let directions: Vec<(i32,i32)> = if piece_type == 2 {
-            vec![(1, -1), (1, 1), (-1, -1), (-1, 1)]
-        } else if piece_type == 5 {
-            vec![(1, 0), (-1, 0), (0, 1), (0, -1)]
-        } else if piece_type == 6 {
-            vec![(1, -1), (1, 1), (-1, -1), (-1, 1), (1, 0), (-1, 0), (0, 1), (0, -1)]
-        } else {
-            vec![]
-        };
-    
-        let mut sliding_pieces_bitmap: u64 = 0;
-        for (rank_dir,file_dir) in directions {
-            let mut i: i32 = 1; 
-            while (starting_rank + i * rank_dir).in_range(1, 8) && (starting_file + i * file_dir).in_range(1, 8) {
-                let square_number = ((starting_rank + i * rank_dir - 1) * 8) + (starting_file + i * file_dir - 1);
-                println!("{}",square_number);
-                sliding_pieces_bitmap |= 0x01 << square_number;
-                if board.squares[square_number as usize] != 0 {
-                    break;
-                }
-                i += 1;
-            }
-        }
-        print_bitmap(sliding_pieces_bitmap);
-        return sliding_pieces_bitmap;
-    }
-}
-
-fn print_bitmap(value: u64) {
-    let number = format!("{:064b}", value);
-    println!("{}", number);
-    for rank in (0..8).rev() {
-        for file in 0..8 {
-            let index = rank * 8 + file;
-            let mask = 1 << index;
-            let piece = (value & mask) >> index;
-
-            print!("{} ", piece);
-        }
-        println!();
-    }
-}
 
 pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<u32>{
     let piece = game_state.board.squares[square_number as usize];
-    let attack_map = AttackMap::new(&game_state.board,game_state.next_side_color_to_move.sideColorToU8());
+    let attack_map = AttackMap::new(&game_state.board,game_state.next_side_color_to_move.side_color_to_u8());
     match piece & 0b00000111{
         1 => {
             return pawn_move_generation(square_number, game_state);
@@ -278,7 +210,7 @@ fn king_move_generation(square: u32, game_state: &GameState) -> Vec<u32> {
     return legal_moves;
 }
 
-trait InRangeI32{
+pub trait InRangeI32{
     fn in_range(self, a: Self, b: Self) -> bool;
 }
 
@@ -288,7 +220,7 @@ impl InRangeI32 for i32 {
     }
 }
 
-trait InRangeU32 {
+pub trait InRangeU32 {
     fn in_range(self, a: Self, b: Self) -> bool;
 }
 
