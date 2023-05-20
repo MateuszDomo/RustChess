@@ -29,7 +29,6 @@ fn highlight_legal_moves_system(
         let legal_moves = &event.legal_moves;
         if let Some(legal_moves) = legal_moves {
             for legal_move_square in legal_moves {
-                println!("{}",legal_move_square);
                 let (x_pos, y_pos) = board_layout.square_xy_positions[*legal_move_square as usize];
                 commands.spawn(SpriteBundle {
                     sprite: Sprite {
