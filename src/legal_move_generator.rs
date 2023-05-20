@@ -1,9 +1,10 @@
-use crate::{chess_utility::GameState, attack_bitmap::AttackMap}; 
+use crate::{chess_utility::GameState, attack_bitmap::{AttackBitmap}}; 
 
 
 pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<u32>{
     let piece = game_state.board.squares[square_number as usize];
-    let attack_map = AttackMap::new(&game_state.board,game_state.next_side_color_to_move.side_color_to_u8());
+    let attack_bitmap = AttackBitmap::new(&game_state.board,game_state.next_side_color_to_move.side_color_to_u8());
+    attack_bitmap.print_bitmap();
     match piece & 0b00000111{
         1 => {
             return pawn_move_generation(square_number, game_state);
@@ -199,8 +200,8 @@ fn king_move_generation(square: u32, game_state: &GameState) -> Vec<u32> {
     for (rank_dir,file_dir) in directions {
 
         if (starting_rank + rank_dir).in_range(1, 8) && (starting_file + file_dir).in_range(1, 8) {
-            let index: i32 = ((starting_rank + rank_dir - 1) * 8) + (starting_file + file_dir - 1);
-            let piece_color = board.squares[index as usize] & 0b00011000;
+            let square_number: i32 = ((starting_rank + rank_dir - 1) * 8) + (starting_file + file_dir - 1);
+            let piece_color = board.squares[square_number as usize] & 0b00011000;
             if piece_color == selected_piece_color {
                 continue;
             }
