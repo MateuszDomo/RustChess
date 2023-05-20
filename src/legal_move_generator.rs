@@ -97,7 +97,7 @@ fn bishop_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
             if piece_color == selected_piece_color {
                 break;
             }
-            legal_moves.push(square_number as u32);
+            legal_moves.push_square_from_rank_and_file((starting_rank + i*rank_dir) as u32, (starting_file + i*file_dir) as u32);
             // Not continue when piece found because legal bishop moves cannot phase through pieces
             let piece_type = board.squares[square_number as usize] & 0b00011000;
             if piece_type != 0 {
@@ -148,7 +148,7 @@ fn rook_move_generation(square: u32, game_state: &GameState) -> Vec<u32> {
             if piece_color == selected_piece_color {
                 break;
             }
-            legal_moves.push(square_number as u32);
+            legal_moves.push_square_from_rank_and_file((starting_rank + i*rank_dir) as u32, (starting_file + i*file_dir) as u32);
             // Not continue when piece found because legal bishop moves cannot phase through pieces
             let piece_type = board.squares[square_number as usize] & 0b00011000;
             if piece_type != 0 {
@@ -176,7 +176,7 @@ fn queen_move_generation(square: u32, game_state: &GameState) -> Vec<u32> {
             if piece_color == selected_piece_color {
                 break;
             }
-            legal_moves.push(square_number as u32);
+            legal_moves.push_square_from_rank_and_file((starting_rank + i*rank_dir) as u32, (starting_file + i*file_dir) as u32);
             // Not continue when piece found because legal bishop moves cannot phase through pieces
             let piece_type = board.squares[square_number as usize] & 0b00011000;
             if piece_type != 0 {
