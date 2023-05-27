@@ -125,7 +125,7 @@ impl AttackBitmap {
       println!()
     }
     
-    pub fn is_square_being_attack(&self, target_square: u32) -> bool {
+    pub fn is_square_being_attacked(&self, target_square: u32) -> bool {
         let target_square_bit_mask: u64 = 0x01 << target_square;
         return self.attack_bitmap & target_square_bit_mask != 0x0;
     }
