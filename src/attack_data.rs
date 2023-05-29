@@ -1,4 +1,4 @@
-use crate::{board::Board, legal_move_generator::InRangeI32};
+use crate::{board::Board, legal_move_generator::InRangeI32, attack_bitmap::AttackBitmap};
 
 
 pub struct AttackData {
@@ -16,9 +16,8 @@ impl AttackData{
         }
     }
 
-    pub fn calculate_attack_data(&mut self, board: &Board, friendly_color: u8) {
+    pub fn calculate_attack_data(&mut self, board: &Board, friendly_color: u8, attack_map: &AttackBitmap) {
 
-        let mut in_check: bool = false;
         let king_square_number = Self::find_friendly_king(board, friendly_color);
         let king_rank: i32 = (king_square_number / 8 + 1) as i32;
         let king_file: i32 = (king_square_number % 8 + 1) as i32;
@@ -42,7 +41,7 @@ impl AttackData{
                         match piece_type {
                             2 | 5 | 6 => {
                                 self.check_ray_bitmap |= ray_mask;
-                                in_check = true;
+                                self.in_check = true;
                             }
                             _ => (),
                         }
@@ -51,9 +50,10 @@ impl AttackData{
                 i += 1;
             }
         }
-        println!("{}",in_check);
-        self.print_bitmap(self.check_ray_bitmap);
-        
+        if attack_map.is_square_being_attacked(king_square_number) {
+            self.in_check = true;
+        }
+        println!("{}",self.in_check);
     }       
     pub fn print_bitmap(&self, value: u64) {
         for rank in (0..8).rev() {
@@ -68,11 +68,20 @@ impl AttackData{
         }
       println!()
     }
+
     fn find_friendly_king(board: &Board, friendly_color: u8) -> u32 {
         let king_square = board.squares.iter().position(|&piece| (piece & 0b00011000) == friendly_color && (piece & 0b00000111) == 7);
         match king_square {
             Some(king_square) => return king_square as u32,
             None => panic!("One king per side must always be alive"),
         }
+    }
+
+    pub fn is_square_pinned(&self, square_number: u32) -> bool {
+        return (self.pinned_bitmap & (0x01 << square_number)) == 0x01;
+    }
+
+    pub fn is_square_in_check_ray(&self, square_number: u32) -> bool {
+        return (self.check_ray_bitmap & (0x01 << square_number)) != 0x0;
     }
 }

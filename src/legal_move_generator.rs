@@ -5,13 +5,14 @@ pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<u
     let piece: u8 = game_state.board.squares[square_number as usize];
     let attack_bitmap = AttackBitmap::new(&game_state.board,game_state.next_side_color_to_move.side_color_to_u8());
     let mut attack_data = AttackData::new();
-    attack_data.calculate_attack_data(&game_state.board, game_state.next_side_color_to_move.side_color_to_u8());
+    attack_data.calculate_attack_data(&game_state.board, game_state.next_side_color_to_move.side_color_to_u8(), &attack_bitmap);
+
     match piece & 0b00000111{
         1 => {
             return pawn_move_generation(square_number, game_state, &attack_data);
         }
         2 => {
-            return bishop_move_generation(square_number, game_state);
+            return bishop_move_generation(square_number, game_state, &attack_data);
         }
         3 => {
             return knight_move_generation(square_number, game_state);
@@ -83,7 +84,7 @@ fn is_pawn_starting_position(rank: u32, selected_piece_color: u8) -> bool {
     }
 }
 
-fn bishop_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
+fn bishop_move_generation(square: u32, game_state: &GameState, attack_data: &AttackData) -> Vec<u32>{
     let mut legal_moves: Vec<u32> = Vec::new();
     let board = &game_state.board;
     let starting_rank: i32 = (square / 8) as i32 + 1;
@@ -95,6 +96,10 @@ fn bishop_move_generation(square: u32, game_state: &GameState) -> Vec<u32>{
         let mut i: i32  = 1; 
         while (starting_rank + i*rank_dir).in_range(1, 8) && (starting_file + i * file_dir).in_range(1, 8) {
             let square_number: i32 = ((starting_rank + i * rank_dir - 1) * 8) + (starting_file + i * file_dir - 1);
+            if attack_data.in_check && !attack_data.is_square_in_check_ray(square_number as u32) {
+                i += 1;
+                continue;
+            }
             let piece_color = board.squares[square_number as usize] & 0b00011000;
             if piece_color == selected_piece_color {
                 break;
@@ -205,7 +210,7 @@ fn king_move_generation(square: u32, game_state: &GameState, attack_bitmap: Atta
             let piece_color = board.squares[square_number as usize] & 0b00011000;
         if piece_color == selected_piece_color || attack_bitmap.is_square_being_attacked(square_number as u32) {
                 continue;
-            }
+        }
             legal_moves.push_square_from_rank_and_file((starting_rank + rank_dir) as u32, (starting_file + file_dir) as u32);
         }
     }

@@ -2,6 +2,7 @@ use crate::{board::Board, legal_move_generator::InRangeI32};
 
 
 pub struct AttackBitmap {
+    pub knight_pieces_bitmap: u64,
     pub attack_bitmap: u64,
 }
 
@@ -33,7 +34,7 @@ impl AttackBitmap {
                 _ => continue,
             }
         }
-        return AttackBitmap {attack_bitmap: sliding_pieces_bitmap | pawn_pieces_bitmap | knight_pieces_bitmap | king_pieces_bitmap};
+        return AttackBitmap {attack_bitmap: sliding_pieces_bitmap | pawn_pieces_bitmap | knight_pieces_bitmap | king_pieces_bitmap, knight_pieces_bitmap: knight_pieces_bitmap};
     }
 
     fn generate_sliding_pieces_bitmap(piece: u8, starting_rank: i32, starting_file: i32, board: &Board) -> u64 {
@@ -128,6 +129,11 @@ impl AttackBitmap {
     pub fn is_square_being_attacked(&self, target_square: u32) -> bool {
         let target_square_bit_mask: u64 = 0x01 << target_square;
         return self.attack_bitmap & target_square_bit_mask != 0x0;
+    }
+
+    pub fn is_square_being_attacked_by_horse(&self, target_square: u32) -> bool {
+        let target_square_bit_mask: u64 = 0x01 << target_square;
+        return self.knight_pieces_bitmap & target_square_bit_mask != 0x0;
     }
 }
 
