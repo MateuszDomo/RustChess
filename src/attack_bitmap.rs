@@ -3,7 +3,7 @@ use crate::{board::Board, legal_move_generator::InRangeI32};
 
 pub struct AttackBitmap {
     pub knight_pieces_bitmap: u64,
-    pub attack_bitmap: u64,
+    pub all_attacks_bitmap: u64,
 }
 
 impl AttackBitmap {
@@ -34,7 +34,7 @@ impl AttackBitmap {
                 _ => continue,
             }
         }
-        return AttackBitmap {attack_bitmap: sliding_pieces_bitmap | pawn_pieces_bitmap | knight_pieces_bitmap | king_pieces_bitmap, knight_pieces_bitmap: knight_pieces_bitmap};
+        return AttackBitmap {all_attacks_bitmap: sliding_pieces_bitmap | pawn_pieces_bitmap | knight_pieces_bitmap | king_pieces_bitmap, knight_pieces_bitmap: knight_pieces_bitmap};
     }
 
     fn generate_sliding_pieces_bitmap(piece: u8, starting_rank: i32, starting_file: i32, board: &Board) -> u64 {
@@ -112,7 +112,7 @@ impl AttackBitmap {
     }
 
     pub fn print_bitmap(&self) {
-        let value: u64 = self.attack_bitmap;
+        let value: u64 = self.all_attacks_bitmap;
         for rank in (0..8).rev() {
             for file in 0..8 {
                 let index: i32 = rank * 8 + file;
@@ -128,7 +128,7 @@ impl AttackBitmap {
     
     pub fn is_square_being_attacked(&self, target_square: u32) -> bool {
         let target_square_bit_mask: u64 = 0x01 << target_square;
-        return self.attack_bitmap & target_square_bit_mask != 0x0;
+        return self.all_attacks_bitmap & target_square_bit_mask != 0x0;
     }
 
     pub fn is_square_being_attacked_by_horse(&self, target_square: u32) -> bool {

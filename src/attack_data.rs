@@ -5,18 +5,21 @@ pub struct AttackData {
     pub pinned_bitmap: u64,
     pub in_check: bool,
     pub check_ray_bitmap: u64,
+    pub attack_bitmaps: AttackBitmap,
 }
 
 impl AttackData{
-    pub fn new() -> Self {
+    pub fn new(board: &Board, friendly_color: u8) -> Self {
+        let attack_bitmaps = AttackBitmap::new(board,friendly_color);
         return AttackData {
             pinned_bitmap: 0,
             in_check: false,
             check_ray_bitmap: 0,
+            attack_bitmaps: attack_bitmaps,
         }
     }
 
-    pub fn calculate_attack_data(&mut self, board: &Board, friendly_color: u8, attack_map: &AttackBitmap) {
+    pub fn calculate_attack_data(&mut self, board: &Board, friendly_color: u8) {
 
         let king_square_number = Self::find_friendly_king(board, friendly_color);
         let king_rank: i32 = (king_square_number / 8 + 1) as i32;
@@ -50,25 +53,12 @@ impl AttackData{
                 i += 1;
             }
         }
-        if attack_map.is_square_being_attacked(king_square_number) {
+        if self.attack_bitmaps.is_square_being_attacked(king_square_number) {
             self.in_check = true;
         }
         println!("{}",self.in_check);
     }       
-    pub fn print_bitmap(&self, value: u64) {
-        for rank in (0..8).rev() {
-            for file in 0..8 {
-                let index: i32 = rank * 8 + file;
-                let mask: u64 = 1 << index;
-                let piece: u64 = (value & mask) >> index;
-
-                print!("{} ", piece);
-            }
-            println!();
-        }
-      println!()
-    }
-
+    
     fn find_friendly_king(board: &Board, friendly_color: u8) -> u32 {
         let king_square = board.squares.iter().position(|&piece| (piece & 0b00011000) == friendly_color && (piece & 0b00000111) == 7);
         match king_square {
