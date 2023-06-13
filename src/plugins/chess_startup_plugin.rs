@@ -36,7 +36,7 @@ fn chess_setup_system(
     let board_layout: BoardLayout = BoardLayout::new(windows, square_dimensions);
     spawn_squares(&board_layout.square_xy_positions, &mut commands, &board_layout.square_dimensions);
 
-    let fen_string = String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    let fen_string = String::from("rnbqkbnr/pppp1ppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     let board: Board = Board{squares: fen::extract_pieces_from_fen(&fen_string)};
 
     let piece_spawner = PieceSpawner::new(game_textures.clone(), board_layout.square_xy_positions);

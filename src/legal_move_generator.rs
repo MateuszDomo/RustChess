@@ -100,9 +100,14 @@ fn sliding_pieces_move_generation(square: u32, game_state: &GameState, attack_da
         while (starting_rank + i*rank_dir).in_range(1, 8) && (starting_file + i * file_dir).in_range(1, 8) {
             let square_number: i32 = ((starting_rank + i * rank_dir - 1) * 8) + (starting_file + i * file_dir - 1);
             // If the move does not block a check
-            if attack_data.in_check && !attack_data.is_square_in_check_ray(square_number as u32) {
+            if attack_data.in_check && (!attack_data.is_square_in_check_ray(square_number as u32) || attack_data.is_square_in_pinned_ray(square_number as u32)) {
                 i += 1;
                 continue;
+            }
+            if attack_data.is_square_in_pinned_ray(square as u32) && !attack_data.is_square_in_pinned_ray(square_number as u32) {
+                println!("HEY");
+                i += 1;
+                continue; 
             }
             let piece_color = board.squares[square_number as usize] & 0b00011000;
             if piece_color == selected_piece_color {
