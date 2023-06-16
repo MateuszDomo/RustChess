@@ -63,3 +63,7 @@ pub struct HighlightLegalMovesEvent {
     pub highlight_new_moves: bool,
     pub legal_moves: Option<Vec<u32>>,
 }
+
+pub fn squareFromRankFile(rank: u32, file: u32) -> u32 {
+    return (rank - 1) * 8 + (file - 1);
+}

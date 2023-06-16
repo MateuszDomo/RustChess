@@ -5,6 +5,7 @@ pub struct AttackData {
     pub pinned_bitmap: u64,
     pub pinned_ray_bitmap: u64,
     pub in_check: bool,
+    pub in_horse_check: bool,
     pub check_ray_bitmap: u64,
     pub attack_bitmaps: AttackBitmap,
 }
@@ -16,6 +17,7 @@ impl AttackData{
             pinned_bitmap: 0,
             pinned_ray_bitmap: 0,
             in_check: false,
+            in_horse_check: false,
             check_ray_bitmap: 0,
             attack_bitmaps: attack_bitmaps,
         }
@@ -45,6 +47,9 @@ impl AttackData{
                         let piece_type = piece & 0b00000111;
                         match piece_type {
                             2 | 5 | 6 => {
+                                if (piece_type == 2 && !Self::is_diagonal(rank_dir, file_dir)) || (piece_type == 5 && Self::is_diagonal(rank_dir, file_dir)){
+                                    break;
+                                }
                                 if is_friendly_piece_in_ray_mask == true {
                                     self.pinned_ray_bitmap |= ray_mask;
                                 } else {
@@ -60,13 +65,21 @@ impl AttackData{
                 i += 1;
             }
         }
+
+        if self.attack_bitmaps.is_square_being_attacked_by_horse(king_square_number) {
+            self.in_horse_check = true;
+            self.in_check = true;
+        }
         if self.attack_bitmaps.is_square_being_attacked(king_square_number) {
             self.in_check = true;
         }
-        Self::print_bitmap(self.pinned_ray_bitmap);
-        Self::print_bitmap(self.pinned_bitmap);
+
         println!("{}", self.in_check);
     }       
+
+    fn is_diagonal(rank_dir: i32, file_dir: i32) -> bool {
+        return  rank_dir != 0 && file_dir != 0;
+    }
     
     pub fn print_bitmap(bitmap: u64) {
             let value: u64 = bitmap;

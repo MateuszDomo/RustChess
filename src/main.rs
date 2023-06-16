@@ -35,11 +35,3 @@ fn main() {
     .add_event::<HighlightLegalMovesEvent>()
     .run();
 }
-
-
-  
-
-
-
-
-

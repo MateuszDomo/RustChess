@@ -136,5 +136,3 @@ impl AttackBitmap {
         return self.knight_pieces_bitmap & target_square_bit_mask != 0x0;
     }
 }
-
-
