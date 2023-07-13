@@ -1,13 +1,14 @@
 use bevy::prelude::*;
 
-use crate::{chess_utility::{HighlightLegalMovesEvent, HighlightedSquare, CheckEvent}, board_layout::{BoardLayout}};
+use crate::{chess_utility::{HighlightLegalMovesEvent, HighlightedSquare, MoveSoundEvent, MoveSounds, GameAudio, MoveAudio}, board_layout::BoardLayout};
 pub struct EventsPlugin ;
 
 impl Plugin for EventsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, highlight_legal_moves_event_system);
+        app.add_systems(Update, (highlight_legal_moves_event_system,move_sounds_system));
     }
 }
+
 
 fn highlight_legal_moves_event_system(
     mut events: EventReader<HighlightLegalMovesEvent>, 
@@ -44,10 +45,39 @@ fn highlight_legal_moves_event_system(
     }
 }
 
-fn check_event_system(
-    mut events: EventReader<CheckEvent>, 
+fn move_sounds_system(
+    mut events: EventReader<MoveSoundEvent>, 
+    mut commands: Commands,
+    game_audio: Res<GameAudio>,
 ) {
+    let move_audio = &game_audio.move_audio;
     for event in events.iter() {
-       // Play check sound 
+        commands.spawn(AudioBundle {
+            source: get_move_audio(&event.move_sound, move_audio),
+            ..default()
+        });
+    }
+}
+
+fn get_move_audio(move_sound: &MoveSounds, game_sounds: &MoveAudio) -> Handle<AudioSource> {
+    match move_sound {
+        MoveSounds::Move => {
+            return game_sounds.move_move.clone();
+        },
+        MoveSounds::Capture => {
+            return game_sounds.move_capture.clone();
+        },
+        MoveSounds::Check => {
+            return game_sounds.move_check.clone();
+        },
+        MoveSounds::Checkmate => {
+            return game_sounds.move_checkmate.clone();
+        },
+        MoveSounds::Promote => {
+            return game_sounds.move_promote.clone();
+        },
+        MoveSounds::Castle => {
+            return game_sounds.move_castle.clone();
+        }
     }
 }

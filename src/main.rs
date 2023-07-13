@@ -15,7 +15,7 @@ mod plugins{
 
 use bevy::prelude::*; 
 use board_layout::BoardLayout;
-use chess_utility::HighlightLegalMovesEvent;
+use chess_utility::{HighlightLegalMovesEvent, MoveSoundEvent};
 use plugins::{player_input_plugin::PlayerInputPlugin, chess_startup_plugin::ChessSetupPlugin, events_plugin::EventsPlugin};
 
 
@@ -35,6 +35,7 @@ fn main() {
         EventsPlugin
     ))
     .add_event::<HighlightLegalMovesEvent>()
+    .add_event::<MoveSoundEvent>()
     .run();
 
 }

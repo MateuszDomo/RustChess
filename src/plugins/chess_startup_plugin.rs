@@ -1,11 +1,12 @@
 use bevy::prelude::*;
 
-use crate::{chess_utility::{GameTextures, SquareDimensions, GameState, SideColor}, board_layout::BoardLayout, board::Board, fen, board_spawns::spawn_squares, piece_spawns::PieceSpawner};
+use crate::{chess_utility::{GameTextures, SquareDimensions, GameState, SideColor, GameAudio, MoveAudio}, board_layout::BoardLayout, board::Board, fen, board_spawns::spawn_squares, piece_spawns::PieceSpawner};
 pub struct ChessSetupPlugin;
 
 impl Plugin for ChessSetupPlugin{
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, chess_setup_system);
+        app.insert_resource(GlobalVolume::new(0.9));
     }
 }
 
@@ -15,8 +16,8 @@ fn chess_setup_system(
     asset_server: Res<AssetServer>
 ) {
     commands.spawn(Camera2dBundle::default()); 
-    
-    let game_textures = GameTextures{
+
+    let game_textures: GameTextures = GameTextures{
         piece_size: 0.75,
         b_p: asset_server.load("b_pawn.png"),
         b_b: asset_server.load("b_bishop.png"),
@@ -30,6 +31,15 @@ fn chess_setup_system(
         w_r: asset_server.load("w_rook.png"),
         w_q: asset_server.load("w_queen.png"),
         w_k: asset_server.load("w_king.png"),
+    };
+    let game_sounds: GameAudio = GameAudio { move_audio: MoveAudio { 
+            move_move: asset_server.load("sounds/move_move.ogg"),
+            move_capture: asset_server.load("sounds/move_capture.ogg"), 
+            move_check: asset_server.load("sounds/move_check.ogg"), 
+            move_checkmate: asset_server.load("sounds/move_checkmate.ogg"), 
+            move_promote: asset_server.load("sounds/move_promote.ogg"), 
+            move_castle: asset_server.load("sounds/move_castle.ogg"), 
+        } 
     };
 
     let  square_dimensions = SquareDimensions{width: 100, height: 100};
@@ -47,4 +57,6 @@ fn chess_setup_system(
     commands.insert_resource(game_state);
     commands.insert_resource(board_layout);
     commands.insert_resource(game_textures);
+    commands.insert_resource(game_sounds);
+    
 } 

@@ -9,9 +9,6 @@ pub fn spawn_squares(square_xy_positions: &[(f32, f32); 64], commands: &mut Comm
         for col in 0..8{
             let square_number = row * 8 + col;
             let (x_pos, y_pos) = square_xy_positions[square_number];
-            println!("POS: ");
-            println!("{}", x_pos);
-            println!("{}", y_pos);
             commands.spawn(SpriteBundle {
                 sprite: Sprite {
                     color: determine_square_color(row as u32,col as u32),
