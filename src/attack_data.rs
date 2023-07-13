@@ -24,7 +24,7 @@ impl AttackData{
     }
 
     pub fn calculate_attack_data(&mut self, board: &Board, friendly_color: u8) {
-
+        
         let king_square_number = Self::find_friendly_king(board, friendly_color);
         let king_rank: i32 = (king_square_number / 8 + 1) as i32;
         let king_file: i32 = (king_square_number % 8 + 1) as i32;

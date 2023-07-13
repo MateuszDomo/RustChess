@@ -28,10 +28,13 @@ fn main() {
             resolution: (800., 800.).into(),
             ..default()
         }),
-        ..default()}))
-    .add_plugin(PlayerInputPlugin)
-    .add_plugin(ChessSetupPlugin)
-    .add_plugin(EventsPlugin)
+        ..default()}),)
+    .add_plugins((
+        PlayerInputPlugin, 
+        ChessSetupPlugin, 
+        EventsPlugin
+    ))
     .add_event::<HighlightLegalMovesEvent>()
     .run();
+
 }

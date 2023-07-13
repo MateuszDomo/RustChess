@@ -1,4 +1,4 @@
-use crate::{chess_utility::{GameState, squareFromRankFile}, attack_bitmap::{AttackBitmap}, attack_data::AttackData}; 
+use crate::{chess_utility::{GameState, square_from_rank_file}, attack_bitmap::{AttackBitmap}, attack_data::AttackData}; 
 
 
 pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<u32>{
@@ -19,9 +19,7 @@ pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<u
         7 => {
             return king_move_generation(square_number, game_state, attack_data.attack_bitmaps);
         }
-        _ => {
-            panic!("Piece should have a valid piece type");
-        }
+        _ => Vec::new()
     }
 }
 
@@ -37,7 +35,7 @@ fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_dat
 
     // Advance one square
     let single_square_advance_rank = starting_rank as i32 + direction;
-    let single_square_advance_square = squareFromRankFile(single_square_advance_rank as u32, starting_file);
+    let single_square_advance_square = square_from_rank_file(single_square_advance_rank as u32, starting_file);
     if can_move_with_check_and_pin(attack_data, selected_square, single_square_advance_square) && single_square_advance_rank.in_range(1, 8)  && board.squares[single_square_advance_square as usize] == 0{
         legal_moves.push_square_from_rank_and_file(single_square_advance_rank as u32, starting_file);
     }

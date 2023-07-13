@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{board::Board};
+use crate::{board::Board, attack_data::AttackData, legal_move_generator::legal_move_generator};
 
 #[derive(Resource,Clone)]
 pub struct GameTextures{
@@ -32,6 +32,23 @@ impl GameState {
         }else{
             self.next_side_color_to_move = SideColor::White;
         }
+        self.check_checkmate();
+    }
+
+    fn check_checkmate(&mut self) {
+        let mut attack_data :AttackData = AttackData::new(&self.board, self.next_side_color_to_move.side_color_to_u8());
+        attack_data.calculate_attack_data(&self.board, self.next_side_color_to_move.side_color_to_u8());
+        if !attack_data.in_check {
+            return
+        };
+        for square_number in 0..64 {
+            let legal_moves = legal_move_generator(self, square_number);
+            if !legal_moves.is_empty() {
+                return;
+            }
+        }
+
+        println!("CHECKMATE");
     }
 }
 
@@ -59,11 +76,17 @@ impl SideColor {
     }
 }
 
+#[derive(Event)]
 pub struct HighlightLegalMovesEvent {
     pub highlight_new_moves: bool,
     pub legal_moves: Option<Vec<u32>>,
 }
 
-pub fn squareFromRankFile(rank: u32, file: u32) -> u32 {
+#[derive(Event)]
+pub struct CheckEvent {
+    pub checkmate: bool,
+}
+
+pub fn square_from_rank_file(rank: u32, file: u32) -> u32 {
     return (rank - 1) * 8 + (file - 1);
 }

@@ -5,7 +5,7 @@ pub struct ChessSetupPlugin;
 
 impl Plugin for ChessSetupPlugin{
     fn build(&self, app: &mut App) {
-        app.add_startup_system(chess_setup_system);
+        app.add_systems(Startup, chess_setup_system);
     }
 }
 
@@ -15,7 +15,7 @@ fn chess_setup_system(
     asset_server: Res<AssetServer>
 ) {
     commands.spawn(Camera2dBundle::default()); 
-
+    
     let game_textures = GameTextures{
         piece_size: 0.75,
         b_p: asset_server.load("b_pawn.png"),

@@ -1,15 +1,15 @@
 use bevy::prelude::*;
 
-use crate::{chess_utility::{HighlightLegalMovesEvent, HighlightedSquare}, board_layout::{BoardLayout}};
+use crate::{chess_utility::{HighlightLegalMovesEvent, HighlightedSquare, CheckEvent}, board_layout::{BoardLayout}};
 pub struct EventsPlugin ;
 
 impl Plugin for EventsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(highlight_legal_moves_system);
+        app.add_systems(Update, highlight_legal_moves_event_system);
     }
 }
 
-fn highlight_legal_moves_system(
+fn highlight_legal_moves_event_system(
     mut events: EventReader<HighlightLegalMovesEvent>, 
     mut query: Query<Entity, With<HighlightedSquare>>,
     board_layout: Res<BoardLayout>,
@@ -41,5 +41,13 @@ fn highlight_legal_moves_system(
                 }).insert(HighlightedSquare); 
             }
         }
+    }
+}
+
+fn check_event_system(
+    mut events: EventReader<CheckEvent>, 
+) {
+    for event in events.iter() {
+       // Play check sound 
     }
 }

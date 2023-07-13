@@ -1,11 +1,11 @@
 use bevy::prelude::*;
-use crate::{BoardLayout, board::{Board}, piece_spawns::Piece, chess_utility::{GameState, HighlightLegalMovesEvent}, legal_move_generator::legal_move_generator};
+use crate::{BoardLayout, board::{Board}, piece_spawns::Piece, chess_utility::{GameState, HighlightLegalMovesEvent}, legal_move_generator::legal_move_generator, attack_data::AttackData};
 
 pub struct PlayerInputPlugin;
 
 impl Plugin for PlayerInputPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(mouse_input_system);
+        app.add_systems(Update, mouse_input_system);
     }
 }
 
@@ -88,6 +88,7 @@ fn move_piece(mut query:  Query<(Entity, &mut Piece, &mut Transform)>, from_squa
     }
     board.squares[to_square as usize] = board.squares[from_square as usize];
     board.squares[from_square as usize] = 0;
+    
 }
 
 fn find_selected_square(mut windows: Query<&mut Window>, square_width: f32, square_height: f32, square_xy_positions: [(f32, f32); 64]) -> u32{
@@ -95,8 +96,10 @@ fn find_selected_square(mut windows: Query<&mut Window>, square_width: f32, squa
     let mut square: u32 = 0;
 
     if let Some(pos) = window.cursor_position(){
-        // Minus 400 because middle of board is (0,0) not (400,400)
-        let pos: Vec2 = Vec2 { x: pos.x - 400., y: pos.y - 400.};
+        // Cursor position (x,y) of the bottom left of the window is (0,height of window)
+        // While window coordinate (x,y) of the bottom left of the window is (-width/2,-height/2)
+        let pos: Vec2 = Vec2 { x: pos.x - 400., y: 400. - pos.y};
+        
         for (index,square_xy) in square_xy_positions.iter().enumerate() {
             let x_bounds_met = (((*square_xy).0 - square_width/2.) < (pos.x)) &&  ((pos.x) < ((*square_xy).0 + square_width/2.));
             let y_bounds_met = (((*square_xy).1 - square_height/2.) < (pos.y)) &&  ((pos.y) < ((*square_xy).1 + square_height/2.));
