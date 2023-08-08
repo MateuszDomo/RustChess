@@ -7,6 +7,7 @@ mod board_spawns;
 mod legal_move_generator;
 mod attack_bitmap;
 mod attack_data;
+mod piece_move;
 mod plugins{
     pub mod chess_startup_plugin;
     pub mod player_input_plugin;
