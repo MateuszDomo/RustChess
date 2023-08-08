@@ -25,7 +25,7 @@ impl AttackData{
 
     pub fn calculate_attack_data(&mut self, board: &Board, friendly_color: u8) {
         
-        let king_square_number = Self::find_friendly_king(board, friendly_color);
+        let king_square_number = board.find_friendly_king(friendly_color);
         let king_rank: i32 = (king_square_number / 8 + 1) as i32;
         let king_file: i32 = (king_square_number % 8 + 1) as i32;
         let king_vulnerability_directions: [(i32,i32);8] = [(1, -1), (1, 1), (-1, -1), (-1, 1), (1, 0), (-1, 0), (0, 1), (0, -1)];
@@ -82,26 +82,18 @@ impl AttackData{
     }
     
     pub fn print_bitmap(bitmap: u64) {
-            let value: u64 = bitmap;
-            for rank in (0..8).rev() {
-                for file in 0..8 {
-                    let index: i32 = rank * 8 + file;
-                    let mask: u64 = 1 << index;
-                    let piece: u64 = (value & mask) >> index;
+        let value: u64 = bitmap;
+        for rank in (0..8).rev() {
+            for file in 0..8 {
+                let index: i32 = rank * 8 + file;
+                let mask: u64 = 1 << index;
+                let piece: u64 = (value & mask) >> index;
 
-                    print!("{} ", piece);
-                }
-                println!();
+                print!("{} ", piece);
             }
+            println!();
+        }
         println!()
-        }
-
-    fn find_friendly_king(board: &Board, friendly_color: u8) -> u32 {
-        let king_square = board.squares.iter().position(|&piece| (piece & 0b00011000) == friendly_color && (piece & 0b00000111) == 7);
-        match king_square {
-            Some(king_square) => return king_square as u32,
-            None => panic!("One king per side must always be alive"),
-        }
     }
 
     pub fn is_square_in_pinned_ray(&self, square_number: u32) -> bool {

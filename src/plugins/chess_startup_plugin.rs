@@ -46,13 +46,13 @@ fn chess_setup_system(
     let board_layout: BoardLayout = BoardLayout::new(windows, square_dimensions);
     spawn_squares(&board_layout.square_xy_positions, &mut commands, &board_layout.square_dimensions);
 
-    let fen_string = String::from("rnbqkbnr/pppp1ppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    let fen_string = String::from("rnbqkbnr/pppp1ppp/8/8/8/8/PPPPPPPP/RNBQK2R");
     let board: Board = Board{squares: fen::extract_pieces_from_fen(&fen_string)};
 
     let piece_spawner = PieceSpawner::new(game_textures.clone(), board_layout.square_xy_positions);
     piece_spawner.spawn_pieces(&mut commands, &board);
 
-    let game_state = GameState{board: board, selected_square: None, next_side_color_to_move: SideColor::White};
+    let game_state = GameState{board: board, selected_square: None, next_side_color_to_move: SideColor::White, b_king_moved: false, w_king_moved: false};
     
     commands.insert_resource(game_state);
     commands.insert_resource(board_layout);
