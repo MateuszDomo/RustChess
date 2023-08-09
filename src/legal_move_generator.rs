@@ -1,8 +1,8 @@
 
-use crate::{chess_utility::{GameState, square_from_rank_file}, attack_bitmap::{AttackBitmap}, attack_data::AttackData}; 
+use crate::{chess_utility::{GameState, square_from_rank_file}, attack_bitmap::AttackBitmap, attack_data::AttackData, piece_move::{PieceMove, Flag}}; 
 
 
-pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<u32>{
+pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<PieceMove>{
     let piece: u8 = game_state.board.squares[square_number as usize];
     let mut attack_data = AttackData::new(&game_state.board,game_state.next_side_color_to_move.side_color_to_u8());
     attack_data.calculate_attack_data(&game_state.board, game_state.next_side_color_to_move.side_color_to_u8());
@@ -25,8 +25,8 @@ pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<u
 }
 
 // TODO en passant
-fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData) -> Vec<u32>{
-    let mut legal_moves: Vec<u32> = Vec::new();
+fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData) -> Vec<PieceMove>{
+    let mut legal_moves: Vec<PieceMove> = Vec::new();
     let board = &game_state.board;
     let selected_piece_color: u8 = board.squares[selected_square as usize] & 0b00011000;
     let starting_rank: u32 = (selected_square / 8) + 1;
@@ -38,7 +38,7 @@ fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_dat
     let single_square_advance_rank = starting_rank as i32 + direction;
     let single_square_advance_square = square_from_rank_file(single_square_advance_rank as u32, starting_file);
     if can_move_with_check_and_pin(attack_data, selected_square, single_square_advance_square) && single_square_advance_rank.in_range(1, 8)  && board.squares[single_square_advance_square as usize] == 0{
-        legal_moves.push_square_from_rank_and_file(single_square_advance_rank as u32, starting_file);
+        legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, starting_file, Flag::None.into());
     }
     
     // Attack left and right diagonal squares
@@ -47,10 +47,10 @@ fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_dat
         let square_capture_square: u32 = (single_square_advance_square as i32 + file_dir) as u32;
         if can_move_with_check_and_pin(attack_data, selected_square, square_capture_square) && single_square_advance_rank.in_range(1,8) {
             if (square_capture_file).in_range(1,8) && board.squares[square_capture_square as usize] != 0 && selected_piece_color != (board.squares[square_capture_square as usize] & 0b00011000) {
-                legal_moves.push_square_from_rank_and_file(single_square_advance_rank as u32, square_capture_file);
+                legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, square_capture_file, Flag::None.into());
             }
             if (square_capture_file).in_range(1,8) && board.squares[square_capture_square as usize] != 0 && selected_piece_color != (board.squares[square_capture_square as usize] & 0b00011000) {
-                legal_moves.push_square_from_rank_and_file(single_square_advance_rank as u32, square_capture_file);
+                legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, square_capture_file, Flag::None.into());
             }
         }
     }
@@ -63,7 +63,7 @@ fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_dat
     let double_square_advance_rank = single_square_advance_rank + direction;
     let double_square_advance_square = (double_square_advance_rank as u32 - 1) * 8 + (starting_file - 1);
     if can_move_with_check_and_pin(attack_data, selected_square, double_square_advance_square) && double_square_advance_rank.in_range(1, 8)  && board.squares[double_square_advance_square as usize] == 0{
-        legal_moves.push_square_from_rank_and_file(double_square_advance_rank as u32, starting_file);
+        legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, double_square_advance_rank as u32, starting_file, Flag::None.into());
     }
     
     return legal_moves;
@@ -78,8 +78,8 @@ fn is_pawn_starting_position(rank: u32, selected_piece_color: u8) -> bool {
     }
 }
 
-fn sliding_pieces_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData, piece: u8) -> Vec<u32> {
-    let mut legal_moves: Vec<u32> = Vec::new();
+fn sliding_pieces_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData, piece: u8) -> Vec<PieceMove> {
+    let mut legal_moves: Vec<PieceMove> = Vec::new();
     let board = &game_state.board;
     let starting_rank: i32 = (selected_square / 8) as i32 + 1;
     let starting_file: i32 = (selected_square % 8) as i32 + 1;
@@ -111,7 +111,9 @@ fn sliding_pieces_move_generation(selected_square: u32, game_state: &GameState, 
                 continue;
             }
 
-            legal_moves.push_square_from_rank_and_file((starting_rank + i*rank_dir) as u32, (starting_file + i*file_dir) as u32);
+            let target_rank: u32 = (starting_rank + rank_dir * i) as u32;
+            let target_file: u32 = (starting_file + file_dir * i) as u32;
+            legal_moves.push_square_from_rank_and_file(starting_rank as u32, starting_file as u32, target_rank, target_file, Flag::None.into());
             // Not continue when piece found because legal sliding moves cannot phase through pieces
             let piece_type = board.squares[target_square as usize] & 0b00011000;
             if piece_type != 0 {
@@ -124,8 +126,8 @@ fn sliding_pieces_move_generation(selected_square: u32, game_state: &GameState, 
 
 }
 
-fn knight_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData) -> Vec<u32> {
-    let mut legal_moves: Vec<u32> = Vec::new();
+fn knight_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData) -> Vec<PieceMove> {
+    let mut legal_moves: Vec<PieceMove> = Vec::new();
     let board = &game_state.board;
     let starting_rank: i32 = (selected_square / 8) as i32 + 1;
     let starting_file: i32 = (selected_square % 8) as i32 + 1;
@@ -146,15 +148,17 @@ fn knight_move_generation(selected_square: u32, game_state: &GameState, attack_d
                 continue;
             }
 
-            legal_moves.push_square_from_rank_and_file((starting_rank + rank_dir) as u32, (starting_file + file_dir) as u32);
+            let target_rank: u32 = (starting_rank + rank_dir) as u32;
+            let target_file: u32 = (starting_file + file_dir) as u32;
+            legal_moves.push_square_from_rank_and_file(starting_rank as u32, starting_file as u32, target_rank, target_file, Flag::None.into());
         }
     }
 
     return legal_moves;
 }
 
-fn king_move_generation(selected_square: u32, game_state: &GameState, attack_bitmap: AttackBitmap) -> Vec<u32> {
-    let mut legal_moves: Vec<u32> = Vec::new();
+fn king_move_generation(selected_square: u32, game_state: &GameState, attack_bitmap: AttackBitmap) -> Vec<PieceMove> {
+    let mut legal_moves: Vec<PieceMove> = Vec::new();
     let board = &game_state.board;
     let starting_rank: i32 = (selected_square / 8) as i32 + 1;
     let starting_file: i32 = (selected_square % 8) as i32 + 1;
@@ -169,7 +173,9 @@ fn king_move_generation(selected_square: u32, game_state: &GameState, attack_bit
         if piece_color == selected_piece_color || attack_bitmap.is_square_being_attacked(square_number as u32) {
                 continue;
         }
-            legal_moves.push_square_from_rank_and_file((starting_rank + rank_dir) as u32, (starting_file + file_dir) as u32);
+            let target_rank: u32 = (starting_rank + rank_dir) as u32;
+            let target_file: u32 = (starting_file + file_dir) as u32;
+            legal_moves.push_square_from_rank_and_file(starting_rank as u32, starting_file as u32, target_rank, target_file, Flag::None.into());
         }
     }
     return legal_moves;
@@ -202,12 +208,13 @@ impl InRangeU32 for u32 {
 }
 
 trait PushSquareFromRankAndFile {
-    fn push_square_from_rank_and_file(&mut self, rank: u32, file: u32);
+    fn push_square_from_rank_and_file(&mut self, s_rank: u32, s_file: u32, t_rank: u32, t_file: u32, flag: u16);
 }
 
-impl PushSquareFromRankAndFile for Vec<u32> {
-    fn push_square_from_rank_and_file(&mut self, rank: u32, file: u32) {
-        let square: u32 = (rank - 1) * 8 + (file - 1);
-        self.push(square);
+impl PushSquareFromRankAndFile for Vec<PieceMove> {
+    fn push_square_from_rank_and_file(&mut self, s_rank: u32, s_file: u32, t_rank: u32, t_file: u32, flag: u16) {
+        let s_square: u32 = (s_rank - 1) * 8 + (s_file - 1);
+        let t_square: u32 = (t_rank - 1) * 8 + (t_file - 1);
+        self.push(PieceMove::new(s_square, t_square, flag));
     }
 }

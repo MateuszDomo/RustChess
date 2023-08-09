@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::{BoardLayout, piece_spawns::Piece, chess_utility::{GameState, HighlightLegalMovesEvent, MoveSoundEvent}, legal_move_generator::legal_move_generator, board::Board};
+use crate::{BoardLayout, piece_spawns::Piece, chess_utility::{GameState, HighlightLegalMovesEvent, MoveSoundEvent}, legal_move_generator::legal_move_generator, board::Board, piece_move::PieceMove};
 
 pub struct PlayerInputPlugin;
 
@@ -57,7 +57,7 @@ fn mouse_input_system(
                 let legal_moves = legal_move_generator(game_state.as_ref(), previously_selected_square);
 
                 // Capture/Move
-                if legal_moves.contains(&selected_square) {
+                if contains_move(legal_moves, &selected_square) {
                     move_piece(pieces, previously_selected_square, selected_square, square_xy_positions, commands, &mut game_state.board);
                     game_state.flip_turn(sound_event);
                 }
@@ -112,3 +112,13 @@ fn find_selected_square(mut windows: Query<&mut Window>, square_width: f32, squa
     }
     return square
 }
+
+pub fn contains_move(legal_moves: Vec<PieceMove>,  square: &u32) -> bool {
+    for legal_move in &legal_moves {
+        if legal_move.target_square() == *square {
+            return true;
+        }
+    }
+    return false;
+}
+

@@ -73,8 +73,6 @@ impl AttackData{
         if self.attack_bitmaps.is_square_being_attacked(king_square_number) {
             self.in_check = true;
         }
-
-        println!("{}", self.in_check);
     }       
 
     fn is_diagonal(rank_dir: i32, file_dir: i32) -> bool {

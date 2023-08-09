@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{board::Board, attack_data::AttackData, legal_move_generator::legal_move_generator};
+use crate::{board::Board, attack_data::AttackData, legal_move_generator::legal_move_generator, piece_move::PieceMove};
 
 #[derive(Resource,Clone)]
 pub struct GameTextures {
@@ -76,7 +76,7 @@ impl GameState {
             return
         };
         for square_number in 0..64 {
-            let legal_moves: Vec<u32> = legal_move_generator(self, square_number);
+            let legal_moves: Vec<PieceMove> = legal_move_generator(self, square_number);
             if !legal_moves.is_empty() {
                 sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Check});
                 return;
@@ -113,7 +113,7 @@ impl SideColor {
 #[derive(Event)]
 pub struct HighlightLegalMovesEvent {
     pub highlight_new_moves: bool,
-    pub legal_moves: Option<Vec<u32>>,
+    pub legal_moves: Option<Vec<PieceMove>>,
 }
 
 pub enum MoveSounds  {Move, Capture, Check, Checkmate, Promote, Castle}
