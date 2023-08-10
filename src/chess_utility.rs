@@ -33,59 +33,6 @@ pub struct MoveAudio {
     pub move_castle: Handle<AudioSource>,
 }
 
-#[derive(Resource)]
-pub struct GameState {
-    pub board: Board,
-    pub selected_square: Option<u32>,
-    pub next_side_color_to_move: SideColor,
-    pub w_king_moved: bool,
-    pub b_king_moved: bool,
-}
-
-impl GameState {
-    pub fn flip_turn(&mut self, sound_event: EventWriter<MoveSoundEvent>) {
-        if self.next_side_color_to_move == SideColor::White {
-            self.next_side_color_to_move = SideColor::Black;
-        }else{
-            self.next_side_color_to_move = SideColor::White;
-        }
-        self.scan_game_state(sound_event);
-    }
-
-    fn scan_game_state(&mut self, sound_event: EventWriter<MoveSoundEvent>) {
-        let mut attack_data :AttackData = AttackData::new(&self.board, self.next_side_color_to_move.side_color_to_u8());
-        attack_data.calculate_attack_data(&self.board, self.next_side_color_to_move.side_color_to_u8());
-
-        self.scan_king_movement();
-        self.scan_checks_and_mates(sound_event, &attack_data);
-    }
-    
-    fn scan_king_movement(&mut self){
-        if self.b_king_moved == false && self.board.find_friendly_king(SideColor::Black.side_color_to_u8()) != 60 {
-            self.b_king_moved = true;
-        }
-
-        if self.w_king_moved == false && self.board.find_friendly_king(SideColor::White.side_color_to_u8()) != 4 {
-            self.w_king_moved = true;
-        }
-    }
-
-    fn scan_checks_and_mates(&self, mut sound_event: EventWriter<MoveSoundEvent>, attack_data: &AttackData) {
-        if !attack_data.in_check {
-            sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Move});
-            return
-        };
-        for square_number in 0..64 {
-            let legal_moves: Vec<PieceMove> = legal_move_generator(self, square_number);
-            if !legal_moves.is_empty() {
-                sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Check});
-                return;
-            }
-        }
-        sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Checkmate});
-    }
-}
-
 pub struct SquareDimensions {
     pub width: u32,
     pub height: u32,

@@ -1,13 +1,15 @@
 use std::collections::HashMap;
 
-pub fn extract_pieces_from_fen(fen_string: &String) -> [u8; 64] {
+use crate::{chess_utility::SideColor, game_state::CastlingRights};
+
+pub fn extract_game_state_from_fen(fen_string: &String) -> ([u8; 64], SideColor, CastlingRights) {
     let piece_map: HashMap<char, u8> = vec![
         ('p', 1),('b', 2), 
         ('n', 3),('r', 5),
         ('q', 6),('k', 7),
     ].into_iter().collect();
-
-    let reversed_fen_string: Vec<&str> = fen_string.split('/').rev().collect();
+    let fen_components: Vec<&str> = fen_string.split(' ').collect();
+    let reversed_fen_string: Vec<&str> = fen_components[0].split('/').rev().collect();
     
     let mut pieces: [u8; 64] = [0; 64];
     let mut square_number = 0;
@@ -30,7 +32,27 @@ pub fn extract_pieces_from_fen(fen_string: &String) -> [u8; 64] {
             }
         }
     }
-    return pieces;
+
+    let side_color: SideColor = match fen_components[1] {
+       "w" => SideColor::White,
+       "b" => SideColor::Black,
+       _ => panic!("wrong fen notation for active color")
+    };
+
+    let mut castling_rights: CastlingRights = CastlingRights::new();
+    for castling_info in fen_components[2].chars() {
+        match castling_info {
+            'K' => castling_rights.w_short = true,
+            'Q' => castling_rights.w_long = true,
+            'k' => castling_rights.b_short = true,
+            'q' => castling_rights.b_long = true,
+            '-' => (),
+            _ => panic!("wrong fen notation for castling rights")
+        }
+    }
+    
+    return (pieces, side_color, castling_rights);
 }
+
 
 

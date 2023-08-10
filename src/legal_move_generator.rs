@@ -1,11 +1,11 @@
 
-use crate::{chess_utility::{GameState, square_from_rank_file}, attack_bitmap::AttackBitmap, attack_data::AttackData, piece_move::{PieceMove, Flag}}; 
+use crate::{chess_utility::square_from_rank_file, attack_bitmap::AttackBitmap, attack_data::AttackData, piece_move::{PieceMove, Flag}, game_state::GameState}; 
 
 
 pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<PieceMove>{
     let piece: u8 = game_state.board.squares[square_number as usize];
-    let mut attack_data = AttackData::new(&game_state.board,game_state.next_side_color_to_move.side_color_to_u8());
-    attack_data.calculate_attack_data(&game_state.board, game_state.next_side_color_to_move.side_color_to_u8());
+    let mut attack_data = AttackData::new(&game_state.board,game_state.next_color_to_move.side_color_to_u8());
+    attack_data.calculate_attack_data(&game_state.board, game_state.next_color_to_move.side_color_to_u8());
 
     match piece & 0b00000111{
         1 => {

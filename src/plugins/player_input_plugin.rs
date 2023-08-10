@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::{BoardLayout, piece_spawns::Piece, chess_utility::{GameState, HighlightLegalMovesEvent, MoveSoundEvent}, legal_move_generator::legal_move_generator, board::Board, piece_move::PieceMove};
+use crate::{BoardLayout, piece_spawns::Piece, chess_utility::{HighlightLegalMovesEvent, MoveSoundEvent}, legal_move_generator::legal_move_generator, board::Board, piece_move::PieceMove, game_state::GameState};
 
 pub struct PlayerInputPlugin;
 
@@ -34,7 +34,7 @@ fn mouse_input_system(
                 }
 
                 // Ensures a player only makes a move if its their turn
-                if game_state.board.piece_color_to_side_color(selected_square) != game_state.next_side_color_to_move {
+                if game_state.board.piece_color_to_side_color(selected_square) != game_state.next_color_to_move {
                     println!("Not this side's turn!");
                     return;
                 }

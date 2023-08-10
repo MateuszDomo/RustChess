@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
-use crate::{chess_utility::{GameTextures, SquareDimensions, GameState, SideColor, GameAudio, MoveAudio}, board_layout::BoardLayout, board::Board, fen, board_spawns::spawn_squares, piece_spawns::PieceSpawner};
+use crate::{chess_utility::{GameTextures, SquareDimensions, GameAudio, MoveAudio}, board_layout::BoardLayout, 
+            board_spawns::spawn_squares, piece_spawns::PieceSpawner, game_state::GameState};
 pub struct ChessSetupPlugin;
 
 impl Plugin for ChessSetupPlugin{
@@ -46,17 +47,16 @@ fn chess_setup_system(
     let board_layout: BoardLayout = BoardLayout::new(windows, square_dimensions);
     spawn_squares(&board_layout.square_xy_positions, &mut commands, &board_layout.square_dimensions);
 
-    let fen_string = String::from("rnbqkbnr/pppp1ppp/8/8/8/8/PPPPPPPP/RNBQK2R");
-    let board: Board = Board{squares: fen::extract_pieces_from_fen(&fen_string)};
+    let fen_string = String::from("rnbqkbnr/pppp1ppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq");
 
     let piece_spawner = PieceSpawner::new(game_textures.clone(), board_layout.square_xy_positions);
-    piece_spawner.spawn_pieces(&mut commands, &board);
 
-    let game_state = GameState{board: board, selected_square: None, next_side_color_to_move: SideColor::White, b_king_moved: false, w_king_moved: false};
+    let game_state: GameState = GameState::new(&fen_string);
     
+    piece_spawner.spawn_pieces(&mut commands, &game_state.board);
+
     commands.insert_resource(game_state);
     commands.insert_resource(board_layout);
     commands.insert_resource(game_textures);
     commands.insert_resource(game_sounds);
-    
 } 
