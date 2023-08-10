@@ -13,9 +13,8 @@ pub struct GameState {
 impl GameState {
 
     pub fn new(fen_string: &String) -> Self {
-
         let (pieces, next_color_to_moves, castling_rights) = extract_game_state_from_fen(fen_string);
-        return GameState { board: Board { squares: pieces }, selected_square: None, next_color_to_move: next_color_to_moves, castling_rights: castling_rights};
+        return GameState { board: Board {squares: pieces}, selected_square: None, next_color_to_move: next_color_to_moves, castling_rights: castling_rights};
     }
 
     pub fn flip_turn(&mut self, sound_event: EventWriter<MoveSoundEvent>) {
@@ -27,11 +26,11 @@ impl GameState {
         self.scan_game_state(sound_event);
     }
 
-    fn scan_game_state(&mut self, sound_event: EventWriter<MoveSoundEvent>) {
+    fn scan_game_state(&self, sound_event: EventWriter<MoveSoundEvent>) {
         let mut attack_data :AttackData = AttackData::new(&self.board, self.next_color_to_move.side_color_to_u8());
         attack_data.calculate_attack_data(&self.board, self.next_color_to_move.side_color_to_u8());
 
-        self.scan_checks_and_mates(sound_event, &attack_data);
+        Self::scan_checks_and_mates(self, sound_event, &attack_data);
     }
 
     fn scan_checks_and_mates(&self, mut sound_event: EventWriter<MoveSoundEvent>, attack_data: &AttackData) {
@@ -59,6 +58,37 @@ pub struct CastlingRights {
 
 impl CastlingRights {
     pub fn new() -> Self {
-        return CastlingRights { w_long: false, w_short: false, b_long: false, b_short: false};
+        return CastlingRights {w_long: false, w_short: false, b_long: false, b_short: false};
+    }
+
+    pub fn has_rights(&self, side_color: &SideColor) -> bool {
+        if *side_color == SideColor::White {
+            return self.w_long || self.w_short
+        }
+        return self.b_long || self.b_short;
+    }
+
+    pub fn revoke_all(&mut self, side_color: &SideColor) {
+        if *side_color == SideColor::White {
+            self.w_long = false;
+            self.w_short = false;
+            return;
+        }
+        self.b_long = false;
+        self.b_short = false;
+    }
+
+    pub fn revoke_long(&mut self, side_color: &SideColor) {
+        if *side_color == SideColor::White {
+            self.w_long = false;
+        }
+        self.b_long = false;
+    }
+
+    pub fn revoke_short(&mut self, side_color: &SideColor) {
+        if *side_color == SideColor::White {
+            self.w_short = false;
+        }
+        self.b_short = false;
     }
 }

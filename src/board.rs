@@ -21,4 +21,18 @@ impl Board{
             None => panic!("One king per side must always be alive"),
         }
     }
+
+    pub fn contains_king(&self, square: u32) -> bool {
+        if (self.squares[square as usize] & 0b00000111) == 0b00000111 {
+            return true;
+        }
+        return false;
+    }
+
+    pub fn contains_rook(&self, square: u32) -> bool {
+        if (self.squares[square as usize] & 0b00000111) == 0b00000101 {
+            return true;
+        }
+        return false;
+    }
 }

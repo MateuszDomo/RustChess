@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{board::Board, attack_data::AttackData, legal_move_generator::legal_move_generator, piece_move::PieceMove};
+use crate::piece_move::PieceMove;
 
 #[derive(Resource,Clone)]
 pub struct GameTextures {

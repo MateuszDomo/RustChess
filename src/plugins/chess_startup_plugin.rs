@@ -33,6 +33,7 @@ fn chess_setup_system(
         w_q: asset_server.load("w_queen.png"),
         w_k: asset_server.load("w_king.png"),
     };
+    
     let game_sounds: GameAudio = GameAudio { move_audio: MoveAudio { 
             move_move: asset_server.load("sounds/move_move.ogg"),
             move_capture: asset_server.load("sounds/move_capture.ogg"), 
@@ -47,12 +48,10 @@ fn chess_setup_system(
     let board_layout: BoardLayout = BoardLayout::new(windows, square_dimensions);
     spawn_squares(&board_layout.square_xy_positions, &mut commands, &board_layout.square_dimensions);
 
-    let fen_string = String::from("rnbqkbnr/pppp1ppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq");
-
-    let piece_spawner = PieceSpawner::new(game_textures.clone(), board_layout.square_xy_positions);
-
+    let fen_string = String::from("r3kq1r/pppp11pp/8/8/8/8/PPPPP1PP/R3K2R w KQkq");
     let game_state: GameState = GameState::new(&fen_string);
     
+    let piece_spawner = PieceSpawner::new(game_textures.clone(), board_layout.square_xy_positions);
     piece_spawner.spawn_pieces(&mut commands, &game_state.board);
 
     commands.insert_resource(game_state);

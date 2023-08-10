@@ -1,5 +1,5 @@
 
-use crate::{chess_utility::square_from_rank_file, attack_bitmap::AttackBitmap, attack_data::AttackData, piece_move::{PieceMove, Flag}, game_state::GameState}; 
+use crate::{chess_utility::{square_from_rank_file, SideColor}, attack_bitmap::AttackBitmap, attack_data::AttackData, piece_move::{PieceMove, Flag}, game_state::GameState}; 
 
 
 pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<PieceMove>{
@@ -170,15 +170,54 @@ fn king_move_generation(selected_square: u32, game_state: &GameState, attack_bit
         if (starting_rank + rank_dir).in_range(1, 8) && (starting_file + file_dir).in_range(1, 8) {
             let square_number: i32 = ((starting_rank + rank_dir - 1) * 8) + (starting_file + file_dir - 1);
             let piece_color = board.squares[square_number as usize] & 0b00011000;
-        if piece_color == selected_piece_color || attack_bitmap.is_square_being_attacked(square_number as u32) {
-                continue;
-        }
+            if piece_color == selected_piece_color || attack_bitmap.is_square_being_attacked(square_number as u32) {
+                    continue;
+            }
             let target_rank: u32 = (starting_rank + rank_dir) as u32;
             let target_file: u32 = (starting_file + file_dir) as u32;
             legal_moves.push_square_from_rank_and_file(starting_rank as u32, starting_file as u32, target_rank, target_file, Flag::None.into());
         }
     }
+
+    // Castling logic
+    let (long_rights, short_rights) = get_castle_rights(selected_piece_color, game_state);
+    if long_rights {
+        let mut can_long_castle: bool = true;
+        for file_dir in 1..=3 {
+            let square_number = ((starting_rank - 1) * 8) as u32 + (starting_file as u32 - 1 - file_dir);
+            let piece = board.squares[square_number as usize] & 0b00000111;
+            if piece != 0 || attack_bitmap.is_square_being_attacked(square_number) {
+                can_long_castle = false;
+                break;
+            }
+        }
+        if can_long_castle {
+            legal_moves.push_square_from_rank_and_file(starting_rank as u32, starting_file as u32, starting_rank as u32, (starting_file as u32) - 2, Flag::Castle.into());
+        }
+    }
+    if short_rights {
+        let mut can_short_castle: bool = true;
+        for file_dir in 1..=2 {
+            let square_number = ((starting_rank - 1) * 8) as u32 + (starting_file as u32 - 1 + file_dir);
+            let piece = board.squares[square_number as usize] & 0b00000111;
+            attack_bitmap.print_bitmap();
+            if piece != 0 || attack_bitmap.is_square_being_attacked(square_number) {
+                can_short_castle = false;
+                break;
+            }
+        }
+        if can_short_castle {
+            legal_moves.push_square_from_rank_and_file(starting_rank as u32, starting_file as u32, starting_rank as u32, (starting_file as u32) + 2, Flag::Castle.into());
+        }
+    }
     return legal_moves;
+}
+
+fn get_castle_rights(selected_piece_color: u8, game_state: &GameState) -> (bool, bool){
+    if selected_piece_color == SideColor::White.side_color_to_u8() {
+        return (game_state.castling_rights.w_long, game_state.castling_rights.w_short);
+    }
+    return (game_state.castling_rights.b_long, game_state.castling_rights.b_short);
 }
 
 fn can_move_with_check_and_pin(attack_data: &AttackData, selected_square: u32, target_square: u32) -> bool {

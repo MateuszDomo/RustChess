@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::{BoardLayout, piece_spawns::Piece, chess_utility::{HighlightLegalMovesEvent, MoveSoundEvent}, legal_move_generator::legal_move_generator, board::Board, piece_move::PieceMove, game_state::GameState};
+use crate::{BoardLayout, piece_spawns::Piece, chess_utility::{HighlightLegalMovesEvent, MoveSoundEvent, SideColor}, legal_move_generator::legal_move_generator, board::Board, piece_move::{PieceMove, Flag}, game_state::{GameState, self, CastlingRights}};
 
 pub struct PlayerInputPlugin;
 
@@ -57,8 +57,8 @@ fn mouse_input_system(
                 let legal_moves = legal_move_generator(game_state.as_ref(), previously_selected_square);
 
                 // Capture/Move
-                if contains_move(legal_moves, &selected_square) {
-                    move_piece(pieces, previously_selected_square, selected_square, square_xy_positions, commands, &mut game_state.board);
+                if let Some(legal_move) = get_legal_move(legal_moves, &selected_square) {
+                    move_pieces(pieces,  square_xy_positions, commands, game_state.as_mut(), legal_move);
                     game_state.flip_turn(sound_event);
                 }
 
@@ -74,23 +74,56 @@ fn mouse_input_system(
     }
 }
 
-fn move_piece(mut query:  Query<(Entity, &mut Piece, &mut Transform)>, from_square: u32, to_square: u32, square_xy_positions: [(f32, f32); 64], mut commands: Commands, board: &mut Board) {
-    for (entity, piece, _) in query.iter_mut() {
-        if piece.square_pos_number == to_square{
-            commands.entity(entity).despawn();
-        }
+fn move_pieces(mut query:  Query<(Entity, &mut Piece, &mut Transform)>, square_xy_positions: [(f32, f32); 64], mut commands: Commands, game_state: &mut GameState, piece_move: PieceMove) {
+
+    let from_square: u32 = piece_move.starting_square();
+    let to_square: u32 = piece_move.target_square();
+    let flag: Flag = piece_move.flag();
+    let board: &mut Board = &mut game_state.board;
+    let active_color: &SideColor = &game_state.next_color_to_move;
+    match flag {
+        Flag::Castle => {
+            if to_square < from_square {
+                move_piece(&mut query, square_xy_positions, &mut commands, board, from_square-4, from_square-1);
+            } else {
+                move_piece(&mut query, square_xy_positions, &mut commands, board, from_square+3, from_square+1);
+            }
+        },
+        _ => (),
     }
-    for (_, mut piece, mut transform) in query.iter_mut() {
-        if piece.square_pos_number == from_square{
-            let translation = &mut transform.translation;   
-            translation.x = square_xy_positions[to_square as usize].0;
-            translation.y = square_xy_positions[to_square as usize].1;
-            piece.square_pos_number = to_square;
-        }
-    }
-    board.squares[to_square as usize] = board.squares[from_square as usize];
-    board.squares[from_square as usize] = 0;
     
+    move_piece(&mut query, square_xy_positions, &mut commands, board, from_square, to_square);
+    scan_castling_rights(to_square, board, &mut game_state.castling_rights, active_color);
+}
+
+fn move_piece(query:  &mut Query<(Entity, &mut Piece, &mut Transform)>, square_xy_positions: [(f32, f32); 64], commands: &mut Commands, board: &mut Board, from_square: u32, to_square: u32) {
+    for (entity, piece, _) in query.iter_mut() {
+            if piece.square_pos_number == to_square{
+                commands.entity(entity).despawn();
+            }
+        }
+        for (_, mut piece, mut transform) in query.iter_mut() {
+            if piece.square_pos_number == from_square{
+                let translation = &mut transform.translation;   
+                translation.x = square_xy_positions[to_square as usize].0;
+                translation.y = square_xy_positions[to_square as usize].1;
+                piece.square_pos_number = to_square;
+            }
+        }
+        board.squares[to_square as usize] = board.squares[from_square as usize];
+        board.squares[from_square as usize] = 0;
+}
+
+fn scan_castling_rights(to_square: u32, board: &Board, castling_rights: &mut CastlingRights, active_color: &SideColor) {
+    if board.contains_king(to_square) {
+        castling_rights.revoke_all(active_color)
+    } else if board.contains_rook(to_square) {
+        if (to_square % 8) + 1 == 1 {
+            castling_rights.revoke_long(active_color);
+        } else if (to_square % 8) + 1 == 8 {
+            castling_rights.revoke_short(active_color);
+        }
+    }
 }
 
 fn find_selected_square(mut windows: Query<&mut Window>, square_width: f32, square_height: f32, square_xy_positions: [(f32, f32); 64]) -> u32{
@@ -113,12 +146,11 @@ fn find_selected_square(mut windows: Query<&mut Window>, square_width: f32, squa
     return square
 }
 
-pub fn contains_move(legal_moves: Vec<PieceMove>,  square: &u32) -> bool {
-    for legal_move in &legal_moves {
+pub fn get_legal_move(legal_moves: Vec<PieceMove>,  square: &u32) -> Option<PieceMove> {
+    for legal_move in legal_moves {
         if legal_move.target_square() == *square {
-            return true;
+            return Some(legal_move);
         }
     }
-    return false;
+    return None
 }
-

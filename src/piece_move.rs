@@ -1,12 +1,23 @@
-pub enum Flag {None}
+pub enum Flag {None, Castle}
 
 impl From<Flag> for u16 {
     fn from(value: Flag) -> Self {
         match value {
-            Flag::None => 0b0000
+            Flag::None => 0b0000,
+            Flag::Castle => 0b0001,
         }
     }
 }
+
+impl Flag {
+    pub fn to_u16(&self) -> u16 {
+        match self {
+            Flag::Castle => 0b0001,
+            Flag::None => 0b000,
+        }
+    }
+}
+
 
 pub struct PieceMove {
     move_bits: u16,
@@ -29,9 +40,13 @@ impl PieceMove {
         return ((self.move_bits & target_square_mask) >> 6) as u32;
     }
 
-    pub fn flag(&self) -> u16 {
+    pub fn flag(&self) -> Flag {
         let flag_mask: u16 = 0b1111000000000000;
-        return (self.move_bits & flag_mask) >> 12;
+        let flag: u16 = (self.move_bits & flag_mask) >> 12;
+        match flag {
+            0b0001 => return Flag::Castle,
+            0b0000 => return Flag::None,
+            _ => panic!("unknown flag")
+        }
     }
 }
-
