@@ -75,12 +75,12 @@ fn mouse_input_system(
 }
 
 fn move_pieces(mut query:  Query<(Entity, &mut Piece, &mut Transform)>, square_xy_positions: [(f32, f32); 64], mut commands: Commands, game_state: &mut GameState, piece_move: PieceMove) {
-
     let from_square: u32 = piece_move.starting_square();
     let to_square: u32 = piece_move.target_square();
     let flag: Flag = piece_move.flag();
     let board: &mut Board = &mut game_state.board;
     let active_color: &SideColor = &game_state.next_color_to_move;
+
     match flag {
         Flag::Castle => {
             if to_square < from_square {

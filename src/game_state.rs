@@ -18,6 +18,9 @@ impl GameState {
     }
 
     pub fn flip_turn(&mut self, sound_event: EventWriter<MoveSoundEvent>) {
+
+        
+
         if self.next_color_to_move == SideColor::White {
             self.next_color_to_move = SideColor::Black;
         }else{
@@ -39,12 +42,24 @@ impl GameState {
             return
         };
         for square_number in 0..64 {
-            let legal_moves: Vec<PieceMove> = legal_move_generator(self, square_number);
+            if self.board.contains_piece(square_number) && self.board.piece_color_to_side_color(square_number) != self.next_color_to_move {
+                println!("{}",square_number);
+                continue;
+            }
+            let legal_moves: Vec<PieceMove> = legal_move_generator(self, square_number as u32);
             if !legal_moves.is_empty() {
                 sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Check});
+                
                 return;
             }
         }
+
+        if self.next_color_to_move == SideColor::White {
+            println!("Checkmate! Black Wins!")
+        } else {
+            println!("Checkmate! White Wins!")
+        }
+
         sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Checkmate});
     }
 }

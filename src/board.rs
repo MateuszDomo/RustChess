@@ -6,7 +6,13 @@ pub struct Board{
 }
 
 impl Board{
-    pub fn piece_color_to_side_color(&self, square: u32) -> SideColor{
+    pub fn contains_piece(&self, square: u32) -> bool {
+        if self.squares[square as usize] == 0 {
+            return false;
+        } 
+        return true;
+    }
+    pub fn piece_color_to_side_color(&self, square: u32) -> SideColor {
         match self.squares[square as usize] & 0b00011000 {
             0b00001000 => return SideColor::White,
             0b00010000 => return SideColor::Black,

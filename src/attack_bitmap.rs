@@ -54,7 +54,7 @@ impl AttackBitmap {
             while (starting_rank + i * rank_dir).in_range(1, 8) && (starting_file + i * file_dir).in_range(1, 8) {
                 let square_number: i32  = ((starting_rank + i * rank_dir - 1) * 8) + (starting_file + i * file_dir - 1);
                 sliding_pieces_bitmap |= 0x01 << square_number;
-                if board.squares[square_number as usize] != 0 {
+                if board.squares[square_number as usize] != 0 && !board.contains_king(square_number as u32) {
                     break;
                 }
                 i += 1;

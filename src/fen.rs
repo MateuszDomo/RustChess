@@ -21,7 +21,7 @@ pub fn extract_game_state_from_fen(fen_string: &String) -> ([u8; 64], SideColor,
                 }
                 '/' => continue,
                 fen_piece if fen_piece.is_uppercase() => {
-                    let fen_piece =fen_piece.to_ascii_lowercase();
+                    let fen_piece: char = fen_piece.to_ascii_lowercase();
                     pieces[square_number as usize] = *piece_map.get(&fen_piece).unwrap() as u8 | 0b00001000 ;
                     square_number += 1;
                 }

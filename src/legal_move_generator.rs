@@ -18,7 +18,7 @@ pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<P
             return knight_move_generation(square_number, game_state, &attack_data);
         }
         7 => {
-            return king_move_generation(square_number, game_state, attack_data.attack_bitmaps);
+            return king_move_generation(square_number, game_state, &attack_data);
         }
         _ => Vec::new()
     }
@@ -157,20 +157,21 @@ fn knight_move_generation(selected_square: u32, game_state: &GameState, attack_d
     return legal_moves;
 }
 
-fn king_move_generation(selected_square: u32, game_state: &GameState, attack_bitmap: AttackBitmap) -> Vec<PieceMove> {
+fn king_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData) -> Vec<PieceMove> {
+    
     let mut legal_moves: Vec<PieceMove> = Vec::new();
     let board = &game_state.board;
     let starting_rank: i32 = (selected_square / 8) as i32 + 1;
     let starting_file: i32 = (selected_square % 8) as i32 + 1;
     let selected_piece_color: u8 = board.squares[selected_square as usize] & 0b00011000;
-
+    attack_data.attack_bitmaps.print_bitmap();
     let directions: [(i32,i32); 8] = [(1, -1), (1, 1), (-1, -1), (-1, 1), (1, 0), (-1, 0), (0, 1), (0, -1)];
     for (rank_dir,file_dir) in directions {
 
         if (starting_rank + rank_dir).in_range(1, 8) && (starting_file + file_dir).in_range(1, 8) {
-            let square_number: i32 = ((starting_rank + rank_dir - 1) * 8) + (starting_file + file_dir - 1);
-            let piece_color = board.squares[square_number as usize] & 0b00011000;
-            if piece_color == selected_piece_color || attack_bitmap.is_square_being_attacked(square_number as u32) {
+            let target_square: i32 = ((starting_rank + rank_dir - 1) * 8) + (starting_file + file_dir - 1);
+            let piece_color = board.squares[target_square as usize] & 0b00011000;
+            if piece_color == selected_piece_color || attack_data.attack_bitmaps.is_square_being_attacked(target_square as u32) || attack_data.is_square_in_check_ray(target_square as u32) {
                     continue;
             }
             let target_rank: u32 = (starting_rank + rank_dir) as u32;
@@ -186,7 +187,7 @@ fn king_move_generation(selected_square: u32, game_state: &GameState, attack_bit
         for file_dir in 1..=3 {
             let square_number = ((starting_rank - 1) * 8) as u32 + (starting_file as u32 - 1 - file_dir);
             let piece = board.squares[square_number as usize] & 0b00000111;
-            if piece != 0 || attack_bitmap.is_square_being_attacked(square_number) {
+            if piece != 0 || attack_data.attack_bitmaps.is_square_being_attacked(square_number) {
                 can_long_castle = false;
                 break;
             }
@@ -200,8 +201,7 @@ fn king_move_generation(selected_square: u32, game_state: &GameState, attack_bit
         for file_dir in 1..=2 {
             let square_number = ((starting_rank - 1) * 8) as u32 + (starting_file as u32 - 1 + file_dir);
             let piece = board.squares[square_number as usize] & 0b00000111;
-            attack_bitmap.print_bitmap();
-            if piece != 0 || attack_bitmap.is_square_being_attacked(square_number) {
+            if piece != 0 || attack_data.attack_bitmaps.is_square_being_attacked(square_number) {
                 can_short_castle = false;
                 break;
             }
