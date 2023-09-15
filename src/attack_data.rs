@@ -47,6 +47,7 @@ impl AttackData{
                         let piece_type = piece & 0b00000111;
                         match piece_type {
                             2 | 5 | 6 => {
+                                ray_mask = ray_mask >> 1;
                                 if (piece_type == 2 && !Self::is_diagonal(rank_dir, file_dir)) || (piece_type == 5 && Self::is_diagonal(rank_dir, file_dir)){
                                     break;
                                 }
