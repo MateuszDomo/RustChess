@@ -1,5 +1,5 @@
 
-use crate::{chess_utility::{square_from_rank_file, SideColor}, attack_bitmap::AttackBitmap, attack_data::AttackData, piece_move::{PieceMove, Flag}, game_state::GameState}; 
+use crate::{chess_utility::{square_from_rank_file, SideColor}, attack_data::AttackData, piece_move::{PieceMove, Flag}, game_state::GameState}; 
 
 
 pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<PieceMove>{
@@ -172,7 +172,7 @@ fn king_move_generation(selected_square: u32, game_state: &GameState, attack_dat
             let target_square: i32 = ((starting_rank + rank_dir - 1) * 8) + (starting_file + file_dir - 1);
             let piece_color = board.squares[target_square as usize] & 0b00011000;
             if piece_color == selected_piece_color || attack_data.attack_bitmaps.is_square_being_attacked(target_square as u32) || attack_data.is_square_in_check_ray(target_square as u32) {
-                    continue;
+                continue;
             }
             let target_rank: u32 = (starting_rank + rank_dir) as u32;
             let target_file: u32 = (starting_file + file_dir) as u32;

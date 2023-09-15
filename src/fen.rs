@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{chess_utility::SideColor, game_state::CastlingRights};
 
-pub fn extract_game_state_from_fen(fen_string: &String) -> ([u8; 64], SideColor, CastlingRights) {
+pub fn extract_game_state_from_fen(fen_string: &String) -> ([u8; 64], SideColor, CastlingRights, Option<u32>) {
     let piece_map: HashMap<char, u8> = vec![
         ('p', 1),('b', 2), 
         ('n', 3),('r', 5),
@@ -50,8 +50,32 @@ pub fn extract_game_state_from_fen(fen_string: &String) -> ([u8; 64], SideColor,
             _ => panic!("wrong fen notation for castling rights")
         }
     }
+
+    let enpassant_string_bytes = fen_components[3].as_bytes();
+
+    let enpassant_string_bytes_length = enpassant_string_bytes.len();
+    if enpassant_string_bytes_length > 2 || enpassant_string_bytes_length < 1{
+        panic!("wrong notation for possible enpassant targets");
+    }
+
+    let enpassant_square: Option<u32>;
+    if enpassant_string_bytes_length == 1 {
+        if enpassant_string_bytes[0] as char != '-' {
+            panic!("wrong notation for possible enpassant targets");
+        }
+
+        enpassant_square = None;
+    } else {
+        let enpassant_file: u32 = enpassant_string_bytes[0] as u32;
+        let enpassant_rank: u32 = (enpassant_string_bytes[1] as char).to_digit(10).unwrap_or_else(||panic!("hey"));
+        if !(enpassant_file >= 97 && enpassant_file <= 104) || !(enpassant_rank >= 1 && enpassant_rank <= 8){
+            panic!("wrong notation for possible enpassant targets");
+        }
+
+        enpassant_square = Some((enpassant_rank - 1) * 8 + (enpassant_file - 1));
+    }
     
-    return (pieces, side_color, castling_rights);
+    return (pieces, side_color, castling_rights, enpassant_square);
 }
 
 

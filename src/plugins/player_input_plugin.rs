@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::{BoardLayout, piece_spawns::Piece, chess_utility::{HighlightLegalMovesEvent, MoveSoundEvent, SideColor}, legal_move_generator::legal_move_generator, board::Board, piece_move::{PieceMove, Flag}, game_state::{GameState, self, CastlingRights}};
+use crate::{BoardLayout, piece_spawns::Piece, chess_utility::{HighlightLegalMovesEvent, MoveSoundEvent, SideColor}, legal_move_generator::legal_move_generator, board::Board, piece_move::{PieceMove, Flag}, game_state::{GameState, CastlingRights}};
 
 pub struct PlayerInputPlugin;
 
