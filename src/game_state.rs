@@ -8,17 +8,18 @@ pub struct GameState {
     pub selected_square: Option<u32>,
     pub next_color_to_move: SideColor,
     pub castling_rights: CastlingRights,
-    pub enpassent_target: Option<u32>,
+    pub enpassant_target: Option<u32>,
 }
 
 impl GameState {
 
     pub fn new(fen_string: &String) -> Self {
         let (pieces, next_color_to_moves, castling_rights, enpassant_target) = extract_game_state_from_fen(fen_string);
-        return GameState { board: Board {squares: pieces}, selected_square: None, next_color_to_move: next_color_to_moves, castling_rights: castling_rights, enpassent_target: enpassant_target};
+        return GameState { board: Board {squares: pieces}, selected_square: None, next_color_to_move: next_color_to_moves, castling_rights: castling_rights, enpassant_target: enpassant_target};
     }
 
     pub fn flip_turn(&mut self, sound_event: EventWriter<MoveSoundEvent>) {
+        println!("{:?}",self.enpassant_target);
         if self.next_color_to_move == SideColor::White {
             self.next_color_to_move = SideColor::Black;
         }else{

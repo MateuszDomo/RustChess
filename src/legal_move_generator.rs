@@ -55,6 +55,18 @@ fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_dat
         }
     }
 
+    // Enpassant
+    if let Some(enpassant_target) = game_state.enpassant_target {
+        let enpassant_target_rank: u32 = (enpassant_target / 8) + 1;
+        let enpassant_target_file: u32 = (enpassant_target % 8) + 1;
+        for file_dir in [1,-1] {
+            let square_capture_square: u32 = (single_square_advance_square as i32 + file_dir) as u32;
+            if square_capture_square == enpassant_target { 
+                legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, enpassant_target_rank as u32, enpassant_target_file, Flag::EnpassantCapture.into())
+            }
+        }
+    }
+
     if !is_pawn_starting_position(starting_rank, selected_piece_color) || board.squares[single_square_advance_square as usize] != 0 {
         return legal_moves;
     }
@@ -63,7 +75,7 @@ fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_dat
     let double_square_advance_rank = single_square_advance_rank + direction;
     let double_square_advance_square = (double_square_advance_rank as u32 - 1) * 8 + (starting_file - 1);
     if can_move_with_check_and_pin(attack_data, selected_square, double_square_advance_square) && double_square_advance_rank.in_range(1, 8)  && board.squares[double_square_advance_square as usize] == 0{
-        legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, double_square_advance_rank as u32, starting_file, Flag::None.into());
+        legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, double_square_advance_rank as u32, starting_file, Flag::EnpassantTarget.into());
     }
     
     return legal_moves;
@@ -164,7 +176,7 @@ fn king_move_generation(selected_square: u32, game_state: &GameState, attack_dat
     let starting_rank: i32 = (selected_square / 8) as i32 + 1;
     let starting_file: i32 = (selected_square % 8) as i32 + 1;
     let selected_piece_color: u8 = board.squares[selected_square as usize] & 0b00011000;
-    attack_data.attack_bitmaps.print_bitmap();
+
     let directions: [(i32,i32); 8] = [(1, -1), (1, 1), (-1, -1), (-1, 1), (1, 0), (-1, 0), (0, 1), (0, -1)];
     for (rank_dir,file_dir) in directions {
 

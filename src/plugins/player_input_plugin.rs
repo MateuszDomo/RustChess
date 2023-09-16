@@ -80,6 +80,7 @@ fn move_pieces(mut query:  Query<(Entity, &mut Piece, &mut Transform)>, square_x
     let flag: Flag = piece_move.flag();
     let board: &mut Board = &mut game_state.board;
     let active_color: &SideColor = &game_state.next_color_to_move;
+    game_state.enpassant_target = None;
 
     match flag {
         Flag::Castle => {
@@ -89,6 +90,24 @@ fn move_pieces(mut query:  Query<(Entity, &mut Piece, &mut Transform)>, square_x
                 move_piece(&mut query, square_xy_positions, &mut commands, board, from_square+3, from_square+1);
             }
         },
+        Flag::EnpassantTarget => {
+            let enpassant_target: u32;
+            if game_state.next_color_to_move == SideColor::White {
+                enpassant_target = to_square - 8;
+            } else {
+                enpassant_target = to_square + 8;
+            }
+            game_state.enpassant_target = Some(enpassant_target);
+        }
+        Flag::EnpassantCapture => {
+            let enpassant_capture: u32;
+            if game_state.next_color_to_move == SideColor::White {
+                enpassant_capture = to_square - 8;
+            } else {
+                enpassant_capture = to_square + 8;
+            }
+            delete_piece(&mut query, &mut commands, enpassant_capture);
+        }
         _ => (),
     }
     
@@ -97,21 +116,26 @@ fn move_pieces(mut query:  Query<(Entity, &mut Piece, &mut Transform)>, square_x
 }
 
 fn move_piece(query:  &mut Query<(Entity, &mut Piece, &mut Transform)>, square_xy_positions: [(f32, f32); 64], commands: &mut Commands, board: &mut Board, from_square: u32, to_square: u32) {
+    delete_piece(query, commands, to_square);
+
+    for (_, mut piece, mut transform) in query.iter_mut() {
+        if piece.square_pos_number == from_square{
+            let translation = &mut transform.translation;   
+            translation.x = square_xy_positions[to_square as usize].0;
+            translation.y = square_xy_positions[to_square as usize].1;
+            piece.square_pos_number = to_square;
+        }
+    }
+    board.squares[to_square as usize] = board.squares[from_square as usize];
+    board.squares[from_square as usize] = 0;
+}
+
+fn delete_piece(query:  &mut Query<(Entity, &mut Piece, &mut Transform)>, commands: &mut Commands, to_square: u32) {
     for (entity, piece, _) in query.iter_mut() {
             if piece.square_pos_number == to_square{
                 commands.entity(entity).despawn();
             }
-        }
-        for (_, mut piece, mut transform) in query.iter_mut() {
-            if piece.square_pos_number == from_square{
-                let translation = &mut transform.translation;   
-                translation.x = square_xy_positions[to_square as usize].0;
-                translation.y = square_xy_positions[to_square as usize].1;
-                piece.square_pos_number = to_square;
-            }
-        }
-        board.squares[to_square as usize] = board.squares[from_square as usize];
-        board.squares[from_square as usize] = 0;
+    }
 }
 
 fn scan_castling_rights(to_square: u32, board: &Board, castling_rights: &mut CastlingRights, active_color: &SideColor) {
