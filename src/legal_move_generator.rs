@@ -183,7 +183,8 @@ fn king_move_generation(selected_square: u32, game_state: &GameState, attack_dat
         if (starting_rank + rank_dir).in_range(1, 8) && (starting_file + file_dir).in_range(1, 8) {
             let target_square: i32 = ((starting_rank + rank_dir - 1) * 8) + (starting_file + file_dir - 1);
             let piece_color = board.squares[target_square as usize] & 0b00011000;
-            if piece_color == selected_piece_color || attack_data.attack_bitmaps.is_square_being_attacked(target_square as u32) || attack_data.is_square_in_check_ray(target_square as u32) {
+            let is_square_attacked: bool = attack_data.attack_bitmaps.is_square_being_attacked(target_square as u32);
+            if piece_color == selected_piece_color || is_square_attacked || (attack_data.is_square_in_check_ray(target_square as u32) && is_square_attacked) {
                 continue;
             }
             let target_rank: u32 = (starting_rank + rank_dir) as u32;
@@ -232,9 +233,11 @@ fn get_castle_rights(selected_piece_color: u8, game_state: &GameState) -> (bool,
     return (game_state.castling_rights.b_long, game_state.castling_rights.b_short);
 }
 
+// can_move_if_check_or_pin ?
 fn can_move_with_check_and_pin(attack_data: &AttackData, selected_square: u32, target_square: u32) -> bool {
     let cannot_block_check: bool =  attack_data.in_check && (!attack_data.is_square_in_check_ray(target_square) || attack_data.is_square_in_pinned_ray(target_square));
     let cannot_move_pinned: bool =  attack_data.is_square_in_pinned_ray(selected_square as u32) && !attack_data.is_square_in_pinned_ray(target_square);
+    print_bitmap(attack_data.check_ray_bitmap); 
     return !(cannot_block_check || cannot_move_pinned);
 }
 
