@@ -28,6 +28,7 @@ fn main() {
         primary_window: Some(Window {
             title: "Main Window".into(),
             resolution: (800., 800.).into(),
+            resizable: false,
             ..default()
         }),
         ..default()}),)

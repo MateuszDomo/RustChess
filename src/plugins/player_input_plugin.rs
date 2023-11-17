@@ -25,7 +25,13 @@ fn mouse_input_system(
     
     if kb.just_pressed(MouseButton::Left) {
         
-        let selected_square: u32 = find_selected_square(windows, square_width, square_height, square_xy_positions);
+        let selected_square_option: Option<u32> = find_selected_square(windows, square_width, square_height, square_xy_positions);
+        let selected_square: u32;
+        match selected_square_option {
+            Some(square) => selected_square = square,
+            None => return,
+        }
+
         match game_state.selected_square {
             None => {
                 if game_state.board.squares[selected_square as usize] == 0 {
@@ -150,20 +156,19 @@ fn scan_castling_rights(to_square: u32, board: &Board, castling_rights: &mut Cas
     }
 }
 
-fn find_selected_square(mut windows: Query<&mut Window>, square_width: f32, square_height: f32, square_xy_positions: [(f32, f32); 64]) -> u32{
+fn find_selected_square(mut windows: Query<&mut Window>, square_width: f32, square_height: f32, square_xy_positions: [(f32, f32); 64]) -> Option<u32> {
     let window = windows.single_mut();
-    let mut square: u32 = 0;
+    let mut square: Option<u32> = None;
 
     if let Some(pos) = window.cursor_position(){
         // Cursor position (x,y) of the bottom left of the window is (0,height of window)
         // While window coordinate (x,y) of the bottom left of the window is (-width/2,-height/2)
         let pos: Vec2 = Vec2 { x: pos.x - 400., y: 400. - pos.y};
-        
         for (index,square_xy) in square_xy_positions.iter().enumerate() {
             let x_bounds_met = (((*square_xy).0 - square_width/2.) < (pos.x)) &&  ((pos.x) < ((*square_xy).0 + square_width/2.));
             let y_bounds_met = (((*square_xy).1 - square_height/2.) < (pos.y)) &&  ((pos.y) < ((*square_xy).1 + square_height/2.));
-            if x_bounds_met && y_bounds_met{
-                square = index as u32;
+            if x_bounds_met && y_bounds_met {
+                square = Some(index as u32);
             }
         }
     }
