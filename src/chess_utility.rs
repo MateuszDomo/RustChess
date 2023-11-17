@@ -73,3 +73,18 @@ pub struct MoveSoundEvent {
 pub fn square_from_rank_file(rank: u32, file: u32) -> u32 {
     return (rank - 1) * 8 + (file - 1);
 }
+
+pub fn print_bitmap(bitmap: u64) {
+    let value: u64 = bitmap;
+    for rank in (0..8).rev() {
+        for file in 0..8 {
+            let index: i32 = rank * 8 + file;
+            let mask: u64 = 1 << index;
+            let piece: u64 = (value & mask) >> index;
+
+            print!("{} ", piece);
+        }
+        println!();
+    }
+    println!()
+}

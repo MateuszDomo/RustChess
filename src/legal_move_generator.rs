@@ -1,5 +1,5 @@
 
-use crate::{chess_utility::{square_from_rank_file, SideColor}, attack_data::AttackData, piece_move::{PieceMove, Flag}, game_state::GameState}; 
+use crate::{chess_utility::{square_from_rank_file, SideColor, print_bitmap}, attack_data::AttackData, piece_move::{PieceMove, Flag}, game_state::GameState}; 
 
 
 pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<PieceMove>{
@@ -37,7 +37,7 @@ fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_dat
     // Advance one square
     let single_square_advance_rank = starting_rank as i32 + direction;
     let single_square_advance_square = square_from_rank_file(single_square_advance_rank as u32, starting_file);
-    if can_move_with_check_and_pin(attack_data, selected_square, single_square_advance_square) && single_square_advance_rank.in_range(1, 8)  && board.squares[single_square_advance_square as usize] == 0{
+    if can_move_with_check_and_pin(attack_data, selected_square, single_square_advance_square) && single_square_advance_rank.in_range(1, 8)  && board.squares[single_square_advance_square as usize] == 0 {
         legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, starting_file, Flag::None.into());
     }
     
