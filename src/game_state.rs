@@ -36,10 +36,11 @@ impl GameState {
     }
 
     fn scan_checks_and_mates(&self, mut sound_event: EventWriter<MoveSoundEvent>, attack_data: &AttackData) {
-        if !attack_data.in_check {
-            sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Move});
-            return
-        };
+        // Move somewhere else. somewhere where the moves happen?
+        //if !attack_data.in_check {
+        //    sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Move});
+        //    return
+        //};
 
         for square_number in 0..64 {
             if self.board.contains_piece(square_number) && self.board.piece_color_to_side_color(square_number) != self.next_color_to_move {
@@ -48,19 +49,28 @@ impl GameState {
             }
             let legal_moves: Vec<PieceMove> = legal_move_generator(self, square_number as u32);
             if !legal_moves.is_empty() {
-                sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Check});
-                
                 return;
             }
+            // Move somewhere else. Somewhere where the moves happen?
+            //if !legal_moves.is_empty() {
+            //    sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Check});
+            //    
+            //    return;
+            //}
         }
 
-        if self.next_color_to_move == SideColor::White {
-            println!("Checkmate! Black Wins!")
+        // TODO STALEMATE WHEN ONLY 2 KINGS 
+        if attack_data.in_check {
+            if self.next_color_to_move == SideColor::White {
+                println!("Checkmate! Black Wins!")
+            } else {
+                println!("Checkmate! White Wins!")
+            }
+            sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Checkmate});
         } else {
-            println!("Checkmate! White Wins!")
+            // Stalemate
+            println!("stalemate");
         }
-
-        sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Checkmate});
     }
 }
 
