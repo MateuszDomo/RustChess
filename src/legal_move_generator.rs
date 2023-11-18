@@ -51,10 +51,10 @@ fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_dat
         let square_capture_square: u32 = (single_square_advance_square as i32 + file_dir) as u32;
         if can_move_with_check_and_pin(attack_data, selected_square, square_capture_square) && single_square_advance_rank.in_range(1,8) {
             if (square_capture_file).in_range(1,8) && board.squares[square_capture_square as usize] != 0 && selected_piece_color != (board.squares[square_capture_square as usize] & 0b00011000) {
-                legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, square_capture_file, Flag::None.into());
+                legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, square_capture_file, Flag::Capture.into());
             }
             if (square_capture_file).in_range(1,8) && board.squares[square_capture_square as usize] != 0 && selected_piece_color != (board.squares[square_capture_square as usize] & 0b00011000) {
-                legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, square_capture_file, Flag::None.into());
+                legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, square_capture_file, Flag::Capture.into());
             }
         }
     }
@@ -133,12 +133,13 @@ fn sliding_pieces_move_generation(selected_square: u32, game_state: &GameState, 
 
             let target_rank: u32 = (starting_rank + rank_dir * i) as u32;
             let target_file: u32 = (starting_file + file_dir * i) as u32;
-            legal_moves.push_square_from_rank_and_file(starting_rank as u32, starting_file as u32, target_rank, target_file, Flag::None.into());
             // Not continue when piece found because legal sliding moves cannot phase through pieces
             let piece_type = board.squares[target_square as usize] & 0b00011000;
             if piece_type != 0 {
+                legal_moves.push_square_from_rank_and_file(starting_rank as u32, starting_file as u32, target_rank, target_file, Flag::Capture.into());
                 break;
             }
+            legal_moves.push_square_from_rank_and_file(starting_rank as u32, starting_file as u32, target_rank, target_file, Flag::None.into());
             i += 1;
         }
     }
@@ -174,14 +175,20 @@ fn knight_move_generation(selected_square: u32, game_state: &GameState, attack_d
 
             let target_rank: u32 = (starting_rank + rank_dir) as u32;
             let target_file: u32 = (starting_file + file_dir) as u32;
-            legal_moves.push_square_from_rank_and_file(starting_rank as u32, starting_file as u32, target_rank, target_file, Flag::None.into());
+            let piece_type = board.squares[target_square as usize] & 0b00011000;
+            let flag: Flag;
+            if piece_type != 0 {
+                flag = Flag::Capture;
+            } else {
+                flag = Flag::None;
+            }
+            legal_moves.push_square_from_rank_and_file(starting_rank as u32, starting_file as u32, target_rank, target_file, flag.into());
         }
     }
 
     return legal_moves;
 }
 
-// TODO DOUBLE CHECK
 fn king_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData) -> Vec<PieceMove> {
     let mut legal_moves: Vec<PieceMove> = Vec::new();
 
@@ -202,7 +209,14 @@ fn king_move_generation(selected_square: u32, game_state: &GameState, attack_dat
             }
             let target_rank: u32 = (starting_rank + rank_dir) as u32;
             let target_file: u32 = (starting_file + file_dir) as u32;
-            legal_moves.push_square_from_rank_and_file(starting_rank as u32, starting_file as u32, target_rank, target_file, Flag::None.into());
+            let piece_type = board.squares[target_square as usize] & 0b00011000;
+            let flag: Flag;
+            if piece_type != 0 {
+                flag = Flag::Capture;
+            } else {
+                flag = Flag::None;
+            }
+            legal_moves.push_square_from_rank_and_file(starting_rank as u32, starting_file as u32, target_rank, target_file, flag.into());
         }
     }
 

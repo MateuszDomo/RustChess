@@ -64,8 +64,8 @@ fn mouse_input_system(
 
                 // Capture/Move
                 if let Some(legal_move) = get_legal_move(legal_moves, &selected_square) {
-                    move_pieces(pieces,  square_xy_positions, commands, game_state.as_mut(), legal_move);
-                    game_state.flip_turn(sound_event);
+                    move_pieces(pieces,  square_xy_positions, commands, game_state.as_mut(), legal_move.clone());
+                    game_state.flip_turn(sound_event, legal_move.clone());
                 }
 
                 // Deselect

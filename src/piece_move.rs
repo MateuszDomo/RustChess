@@ -1,5 +1,5 @@
 #[derive(PartialEq)]
-pub enum Flag {None, Castle, EnpassantTarget, EnpassantCapture}
+pub enum Flag {None, Castle, EnpassantTarget, EnpassantCapture, Capture}
 
 impl From<Flag> for u16 {
     fn from(value: Flag) -> Self {
@@ -8,22 +8,24 @@ impl From<Flag> for u16 {
             Flag::Castle => 0b0001,
             Flag::EnpassantTarget => 0b0010,
             Flag::EnpassantCapture => 0b0100,
+            Flag::Capture => 0b1000, 
         }
     }
 }
 
 impl Flag {
-    pub fn to_u16(&self) -> u16 {
+    pub fn to_u8(&self) -> u16 {
         match self {
             Flag::Castle => 0b0001,
             Flag::None => 0b0000,
             Flag::EnpassantTarget => 0b0010,
             Flag::EnpassantCapture => 0b0100,
+            Flag::Capture => 0b1000, 
         }
     }
 }
 
-
+#[derive(Clone, Debug)]
 pub struct PieceMove {
     move_bits: u16,
 }
@@ -53,6 +55,7 @@ impl PieceMove {
             0b0000 => return Flag::None,
             0b0010 => return Flag::EnpassantTarget,
             0b0100 => return Flag::EnpassantCapture,
+            0b1000 => return Flag::Capture,
             _ => panic!("unknown flag")
         }
     }

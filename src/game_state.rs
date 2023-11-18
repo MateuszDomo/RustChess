@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{board::Board, chess_utility::{SideColor, MoveSoundEvent, MoveSounds}, attack_data::AttackData, piece_move::PieceMove, legal_move_generator::legal_move_generator, fen::extract_game_state_from_fen};
+use crate::{board::Board, chess_utility::{SideColor, MoveSoundEvent, MoveSounds}, attack_data::AttackData, piece_move::{PieceMove, Flag}, legal_move_generator::legal_move_generator, fen::extract_game_state_from_fen};
 
 #[derive(Resource)]
 pub struct GameState {
@@ -18,45 +18,36 @@ impl GameState {
         return GameState { board: Board {squares: pieces}, selected_square: None, next_color_to_move: next_color_to_moves, castling_rights: castling_rights, enpassant_target: enpassant_target};
     }
 
-    pub fn flip_turn(&mut self, sound_event: EventWriter<MoveSoundEvent>) {
+    pub fn flip_turn(&mut self, sound_event: EventWriter<MoveSoundEvent>, turn_ending_move: PieceMove) {
         println!("{:?}",self.enpassant_target);
         if self.next_color_to_move == SideColor::White {
             self.next_color_to_move = SideColor::Black;
         }else{
             self.next_color_to_move = SideColor::White;
         }
-        self.scan_game_state(sound_event);
+        self.scan_game_state(sound_event, turn_ending_move);
     }
 
-    fn scan_game_state(&self, sound_event: EventWriter<MoveSoundEvent>) {
+    fn scan_game_state(&self, sound_event: EventWriter<MoveSoundEvent>, turn_ending_move: PieceMove) {
         let mut attack_data :AttackData = AttackData::new(&self.board, self.next_color_to_move.side_color_to_u8());
         attack_data.calculate_attack_data(&self.board, self.next_color_to_move.side_color_to_u8());
 
-        Self::scan_checks_and_mates(self, sound_event, &attack_data);
+        Self::scan_checks_and_mates(self, sound_event, &attack_data, turn_ending_move);
     }
 
-    fn scan_checks_and_mates(&self, mut sound_event: EventWriter<MoveSoundEvent>, attack_data: &AttackData) {
-        // Move somewhere else. somewhere where the moves happen?
-        //if !attack_data.in_check {
-        //    sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Move});
-        //    return
-        //};
-
-        for square_number in 0..64 {
-            if self.board.contains_piece(square_number) && self.board.piece_color_to_side_color(square_number) != self.next_color_to_move {
-                println!("{}",square_number);
-                continue;
+    fn scan_checks_and_mates(&self, mut sound_event: EventWriter<MoveSoundEvent>, attack_data: &AttackData, turn_ending_move: PieceMove) {
+        
+        if self.is_possible_move() {
+            if attack_data.in_check {
+                sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Check});
+            } else {
+                match turn_ending_move.flag() {
+                    Flag::Castle => sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Castle}),
+                    Flag:: Capture | Flag::EnpassantCapture => sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Capture}),
+                    Flag::None | Flag::EnpassantTarget => sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Move}),
+                }
             }
-            let legal_moves: Vec<PieceMove> = legal_move_generator(self, square_number as u32);
-            if !legal_moves.is_empty() {
-                return;
-            }
-            // Move somewhere else. Somewhere where the moves happen?
-            //if !legal_moves.is_empty() {
-            //    sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Check});
-            //    
-            //    return;
-            //}
+            return;
         }
 
         // TODO STALEMATE WHEN ONLY 2 KINGS 
@@ -71,8 +62,22 @@ impl GameState {
             // Stalemate
             println!("stalemate");
         }
+
+    }
+    fn is_possible_move(&self) -> bool {
+            for square_number in 0..64 {
+                if self.board.contains_piece(square_number) && self.board.piece_color_to_side_color(square_number) != self.next_color_to_move {
+                    continue;
+                }
+                let legal_moves: Vec<PieceMove> = legal_move_generator(self, square_number as u32);
+                if !legal_moves.is_empty() {
+                    return true;
+                }
+            }
+            return false;
     }
 }
+
 
 pub struct CastlingRights {
     pub w_long: bool,
