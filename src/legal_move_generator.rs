@@ -27,6 +27,10 @@ pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<P
 // TODO en passant
 fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData) -> Vec<PieceMove>{
     let mut legal_moves: Vec<PieceMove> = Vec::new();
+    if attack_data.in_double_check == true {
+        return legal_moves;
+    }
+
     let board = &game_state.board;
     let selected_piece_color: u8 = board.squares[selected_square as usize] & 0b00011000;
     let starting_rank: u32 = (selected_square / 8) + 1;
@@ -92,6 +96,10 @@ fn is_pawn_starting_position(rank: u32, selected_piece_color: u8) -> bool {
 
 fn sliding_pieces_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData, piece: u8) -> Vec<PieceMove> {
     let mut legal_moves: Vec<PieceMove> = Vec::new();
+    if attack_data.in_double_check == true {
+        return legal_moves;
+    }
+    
     let board = &game_state.board;
     let starting_rank: i32 = (selected_square / 8) as i32 + 1;
     let starting_file: i32 = (selected_square % 8) as i32 + 1;
@@ -140,6 +148,10 @@ fn sliding_pieces_move_generation(selected_square: u32, game_state: &GameState, 
 
 fn knight_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData) -> Vec<PieceMove> {
     let mut legal_moves: Vec<PieceMove> = Vec::new();
+    if attack_data.in_double_check == true {
+        return legal_moves;
+    }
+    
     let board = &game_state.board;
     let starting_rank: i32 = (selected_square / 8) as i32 + 1;
     let starting_file: i32 = (selected_square % 8) as i32 + 1;
@@ -171,8 +183,8 @@ fn knight_move_generation(selected_square: u32, game_state: &GameState, attack_d
 
 // TODO DOUBLE CHECK
 fn king_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData) -> Vec<PieceMove> {
-    
     let mut legal_moves: Vec<PieceMove> = Vec::new();
+
     let board = &game_state.board;
     let starting_rank: i32 = (selected_square / 8) as i32 + 1;
     let starting_file: i32 = (selected_square % 8) as i32 + 1;

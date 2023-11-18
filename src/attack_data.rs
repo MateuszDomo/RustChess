@@ -6,7 +6,6 @@ pub struct AttackData {
     pub pinned_ray_bitmap: u64,
     pub in_check: bool,
     pub in_double_check: bool,
-    pub in_horse_check: bool,
     pub check_ray_bitmap: u64,
     pub attack_bitmaps: AttackBitmap,
 }
@@ -19,7 +18,6 @@ impl AttackData {
             pinned_ray_bitmap: 0,
             in_check: false,
             in_double_check: false,
-            in_horse_check: false,
             check_ray_bitmap: 0,
             attack_bitmaps: attack_bitmaps,
         }
@@ -102,7 +100,6 @@ impl AttackData {
             } else {
                 self.in_check = true;
             }
-            self.in_horse_check = true;
             // Add attacking horse to check ray bitmap
             let knight_directions: [(i32,i32); 8] = [(2,-1), (2,1), (-2,1), (-2,-1), (1,2), (1,-2), (-1,2), (-1,-2)];
             for (rank_dir, file_dir) in knight_directions {
