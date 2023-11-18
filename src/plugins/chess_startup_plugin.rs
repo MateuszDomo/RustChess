@@ -48,7 +48,8 @@ fn chess_setup_system(
     let board_layout: BoardLayout = BoardLayout::new(windows, square_dimensions);
     spawn_squares(&board_layout.square_xy_positions, &mut commands, &board_layout.square_dimensions);
 
-    let fen_string = String::from("r3kq1r/pppp11pp/8/8/8/8/PPPPP1PP/R3K2R w KQkq -");
+    // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
+    let fen_string = String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -");
     let game_state: GameState = GameState::new(&fen_string);
     
     let piece_spawner = PieceSpawner::new(game_textures.clone(), board_layout.square_xy_positions);

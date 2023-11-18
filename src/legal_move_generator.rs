@@ -169,6 +169,7 @@ fn knight_move_generation(selected_square: u32, game_state: &GameState, attack_d
     return legal_moves;
 }
 
+// TODO DOUBLE CHECK
 fn king_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData) -> Vec<PieceMove> {
     
     let mut legal_moves: Vec<PieceMove> = Vec::new();
@@ -237,7 +238,6 @@ fn get_castle_rights(selected_piece_color: u8, game_state: &GameState) -> (bool,
 fn can_move_with_check_and_pin(attack_data: &AttackData, selected_square: u32, target_square: u32) -> bool {
     let cannot_block_check: bool =  attack_data.in_check && (!attack_data.is_square_in_check_ray(target_square) || attack_data.is_square_in_pinned_ray(target_square));
     let cannot_move_pinned: bool =  attack_data.is_square_in_pinned_ray(selected_square as u32) && !attack_data.is_square_in_pinned_ray(target_square);
-    print_bitmap(attack_data.check_ray_bitmap); 
     return !(cannot_block_check || cannot_move_pinned);
 }
 

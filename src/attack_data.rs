@@ -1,22 +1,24 @@
-use crate::{board::Board, legal_move_generator::InRangeI32, attack_bitmap::AttackBitmap,chess_utility::{print_bitmap}};
+use crate::{board::Board, legal_move_generator::InRangeI32, attack_bitmap::AttackBitmap,chess_utility::{print_bitmap, SideColor}};
 
 
 pub struct AttackData {
     pub pinned_bitmap: u64,
     pub pinned_ray_bitmap: u64,
     pub in_check: bool,
+    pub in_double_check: bool,
     pub in_horse_check: bool,
     pub check_ray_bitmap: u64,
     pub attack_bitmaps: AttackBitmap,
 }
 
-impl AttackData{
+impl AttackData {
     pub fn new(board: &Board, friendly_color: u8) -> Self {
         let attack_bitmaps = AttackBitmap::new(board,friendly_color);
         return AttackData {
             pinned_bitmap: 0,
             pinned_ray_bitmap: 0,
             in_check: false,
+            in_double_check: false,
             in_horse_check: false,
             check_ray_bitmap: 0,
             attack_bitmaps: attack_bitmaps,
@@ -54,7 +56,11 @@ impl AttackData{
                                     self.pinned_ray_bitmap |= ray_mask;
                                 } else {
                                     self.check_ray_bitmap |= ray_mask;
-                                    self.in_check = true;
+                                    if self.in_check == true {
+                                        self.in_double_check = true;
+                                    } else {
+                                        self.in_check = true;
+                                    }
                                 }
                                 break;
                             }
@@ -66,12 +72,47 @@ impl AttackData{
             }
         }
 
-        if self.attack_bitmaps.is_square_being_attacked_by_horse(king_square_number) {
-            self.in_horse_check = true;
-            self.in_check = true;
+        if self.attack_bitmaps.is_square_being_attacked_by_pawn(king_square_number) {
+            if self.in_check == true {
+                self.in_double_check = true;
+            } else {
+                self.in_check = true;
+            }
+            // Add attacking pawn to check ray bitmap
+            let row_dir = if friendly_color == SideColor::White.side_color_to_u8() {1} else {-1}; 
+            // Left diagonal pawn threat
+            if (king_rank + row_dir).in_range(1, 8) && (king_file - 1).in_range(1, 8) {
+                let square_number: i32 = ((king_rank + 1 - 1) * 8) + (king_file - 1 - 1);
+                if board.squares[square_number as usize] & 0b00000111 == 1 {
+                    self.check_ray_bitmap |= 0x01 << square_number;
+                }
+            }
+            // Left diagonal pawn threat
+            if (king_rank + row_dir).in_range(1, 8) && (king_file + 1).in_range(1, 8) {
+                let square_number: i32 = ((king_rank + 1 - 1) * 8) + (king_file + 1 - 1);
+                if board.squares[square_number as usize] & 0b00000111 == 1 {
+                    self.check_ray_bitmap |= 0x01 << square_number;
+                }
+            }
         }
-        if self.attack_bitmaps.is_square_being_attacked(king_square_number) {
-            self.in_check = true;
+        if self.attack_bitmaps.is_square_being_attacked_by_horse(king_square_number) {
+            // Add attacking horse to check ray bitmap
+            if self.in_check == true {
+                self.in_double_check = true;
+            } else {
+                self.in_check = true;
+            }
+            self.in_horse_check = true;
+            // Add attacking horse to check ray bitmap
+            let knight_directions: [(i32,i32); 8] = [(2,-1), (2,1), (-2,1), (-2,-1), (1,2), (1,-2), (-1,2), (-1,-2)];
+            for (rank_dir, file_dir) in knight_directions {
+                if (king_rank + rank_dir).in_range(1, 8) && (king_file + file_dir).in_range(1, 8) {
+                    let square_number: i32 = ((king_rank + rank_dir - 1) * 8) + (king_file + file_dir - 1);
+                    if board.squares[square_number as usize] & 0b00000111 == 3 {
+                        self.check_ray_bitmap |= 0x01 << square_number;
+                    }
+                }
+            }
         }
     }       
 
