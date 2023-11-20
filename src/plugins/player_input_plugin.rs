@@ -118,7 +118,7 @@ fn move_pieces(mut query:  Query<(Entity, &mut Piece, &mut Transform)>, square_x
     }
     
     move_piece(&mut query, square_xy_positions, &mut commands, board, from_square, to_square);
-    scan_castling_rights(to_square, board, &mut game_state.castling_rights, active_color);
+
 }
 
 fn move_piece(query:  &mut Query<(Entity, &mut Piece, &mut Transform)>, square_xy_positions: [(f32, f32); 64], commands: &mut Commands, board: &mut Board, from_square: u32, to_square: u32) {
@@ -144,17 +144,6 @@ fn delete_piece(query:  &mut Query<(Entity, &mut Piece, &mut Transform)>, comman
     }
 }
 
-fn scan_castling_rights(to_square: u32, board: &Board, castling_rights: &mut CastlingRights, active_color: &SideColor) {
-    if board.contains_king(to_square) {
-        castling_rights.revoke_all(active_color)
-    } else if board.contains_rook(to_square) {
-        if (to_square % 8) + 1 == 1 {
-            castling_rights.revoke_long(active_color);
-        } else if (to_square % 8) + 1 == 8 {
-            castling_rights.revoke_short(active_color);
-        }
-    }
-}
 
 fn find_selected_square(mut windows: Query<&mut Window>, square_width: f32, square_height: f32, square_xy_positions: [(f32, f32); 64]) -> Option<u32> {
     let window = windows.single_mut();

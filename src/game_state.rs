@@ -19,7 +19,7 @@ impl GameState {
     }
 
     pub fn flip_turn(&mut self, sound_event: EventWriter<MoveSoundEvent>, turn_ending_move: PieceMove) {
-        println!("{:?}",self.enpassant_target);
+        self.update_castling_rights(turn_ending_move.target_square());
         if self.next_color_to_move == SideColor::White {
             self.next_color_to_move = SideColor::Black;
         }else{
@@ -32,7 +32,7 @@ impl GameState {
         let mut attack_data :AttackData = AttackData::new(&self.board, self.next_color_to_move.side_color_to_u8());
         attack_data.calculate_attack_data(&self.board, self.next_color_to_move.side_color_to_u8());
 
-        Self::scan_checks_and_mates(self, sound_event, &attack_data, turn_ending_move);
+        self.scan_checks_and_mates(sound_event, &attack_data, turn_ending_move);
     }
 
     fn scan_checks_and_mates(&self, mut sound_event: EventWriter<MoveSoundEvent>, attack_data: &AttackData, turn_ending_move: PieceMove) {
@@ -75,6 +75,18 @@ impl GameState {
                 }
             }
             return false;
+    }
+    
+    fn update_castling_rights(&mut self, to_square: u32) {
+        if self.board.contains_king(to_square) {
+            self.castling_rights.revoke_all(&self.next_color_to_move)
+        } else if self.board.contains_rook(to_square) {
+            if (to_square % 8) + 1 == 1 {
+                self.castling_rights.revoke_long(&self.next_color_to_move);
+            } else if (to_square % 8) + 1 == 8 {
+                self.castling_rights.revoke_short(&self.next_color_to_move);
+            }
+        }
     }
 }
 
