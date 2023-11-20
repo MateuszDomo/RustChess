@@ -1,5 +1,5 @@
-#[derive(PartialEq)]
-pub enum Flag {None, Castle, EnpassantTarget, EnpassantCapture, Capture}
+#[derive(PartialEq, Clone, Debug)]
+pub enum Flag {None, Castle, EnpassantTarget, EnpassantCapture, Capture, Promote}
 
 impl From<Flag> for u16 {
     fn from(value: Flag) -> Self {
@@ -9,6 +9,7 @@ impl From<Flag> for u16 {
             Flag::EnpassantTarget => 0b0010,
             Flag::EnpassantCapture => 0b0100,
             Flag::Capture => 0b1000, 
+            Flag::Promote => 0b0011,
         }
     }
 }
@@ -21,6 +22,7 @@ impl Flag {
             Flag::EnpassantTarget => 0b0010,
             Flag::EnpassantCapture => 0b0100,
             Flag::Capture => 0b1000, 
+            Flag::Promote => 0b0011,
         }
     }
 }
@@ -56,6 +58,7 @@ impl PieceMove {
             0b0010 => return Flag::EnpassantTarget,
             0b0100 => return Flag::EnpassantCapture,
             0b1000 => return Flag::Capture,
+            0b0011 => return Flag::Promote,
             _ => panic!("unknown flag")
         }
     }

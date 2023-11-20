@@ -65,6 +65,7 @@ fn get_move_audio(move_sound: &MoveSounds, game_sounds: &MoveAudio) -> Handle<Au
             return game_sounds.move_move.clone();
         },
         MoveSounds::Capture => {
+            println!("CAPTURE");
             return game_sounds.move_capture.clone();
         },
         MoveSounds::Check => {
@@ -74,6 +75,7 @@ fn get_move_audio(move_sound: &MoveSounds, game_sounds: &MoveAudio) -> Handle<Au
             return game_sounds.move_checkmate.clone();
         },
         MoveSounds::Promote => {
+            println!("PROMOTE");
             return game_sounds.move_promote.clone();
         },
         MoveSounds::Castle => {

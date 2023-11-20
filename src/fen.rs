@@ -77,6 +77,3 @@ pub fn extract_game_state_from_fen(fen_string: &String) -> ([u8; 64], SideColor,
     
     return (pieces, side_color, castling_rights, enpassant_square);
 }
-
-
-

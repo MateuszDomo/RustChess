@@ -44,6 +44,7 @@ impl GameState {
                 match turn_ending_move.flag() {
                     Flag::Castle => sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Castle}),
                     Flag:: Capture | Flag::EnpassantCapture => sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Capture}),
+                    Flag:: Promote => sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Promote}),
                     Flag::None | Flag::EnpassantTarget => sound_event.send(MoveSoundEvent {move_sound: MoveSounds::Move}),
                 }
             }

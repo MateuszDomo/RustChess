@@ -1,7 +1,7 @@
 
 use crate::{chess_utility::{square_from_rank_file, SideColor, print_bitmap}, attack_data::AttackData, piece_move::{PieceMove, Flag}, game_state::GameState}; 
 
-
+// TODO: legal_move_generator should take in attack data as a parameter. More efficient + Dependency Injection.
 pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<PieceMove>{
     let piece: u8 = game_state.board.squares[square_number as usize];
     let mut attack_data = AttackData::new(&game_state.board,game_state.next_color_to_move.side_color_to_u8());
@@ -24,7 +24,6 @@ pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<P
     }
 }
 
-// TODO en passant
 fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_data: &AttackData) -> Vec<PieceMove>{
     let mut legal_moves: Vec<PieceMove> = Vec::new();
     if attack_data.in_double_check == true {
@@ -40,9 +39,13 @@ fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_dat
 
     // Advance one square
     let single_square_advance_rank = starting_rank as i32 + direction;
+    let promote: bool = single_square_advance_rank == 8 && selected_piece_color == SideColor::White.side_color_to_u8() ||
+            single_square_advance_rank == 0 && selected_piece_color == SideColor::Black.side_color_to_u8();
+
     let single_square_advance_square = square_from_rank_file(single_square_advance_rank as u32, starting_file);
     if can_move_with_check_and_pin(attack_data, selected_square, single_square_advance_square) && single_square_advance_rank.in_range(1, 8)  && board.squares[single_square_advance_square as usize] == 0 {
-        legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, starting_file, Flag::None.into());
+        let flag: Flag = if promote {Flag::Promote} else {Flag::None};
+        legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, starting_file, flag.into());
     }
     
     // Attack left and right diagonal squares
@@ -50,23 +53,23 @@ fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_dat
         let square_capture_file: u32 = (starting_file as i32 + file_dir) as u32;
         let square_capture_square: u32 = (single_square_advance_square as i32 + file_dir) as u32;
         if can_move_with_check_and_pin(attack_data, selected_square, square_capture_square) && single_square_advance_rank.in_range(1,8) {
+            let flag: Flag = if promote {Flag::Promote} else {Flag::Capture};
             if (square_capture_file).in_range(1,8) && board.squares[square_capture_square as usize] != 0 && selected_piece_color != (board.squares[square_capture_square as usize] & 0b00011000) {
-                legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, square_capture_file, Flag::Capture.into());
+                legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, square_capture_file, flag.clone().into());
             }
             if (square_capture_file).in_range(1,8) && board.squares[square_capture_square as usize] != 0 && selected_piece_color != (board.squares[square_capture_square as usize] & 0b00011000) {
-                legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, square_capture_file, Flag::Capture.into());
+                legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, square_capture_file, flag.clone().into());
             }
         }
     }
 
     // Enpassant
     if let Some(enpassant_target) = game_state.enpassant_target {
-        let enpassant_target_rank: u32 = (enpassant_target / 8) + 1;
         let enpassant_target_file: u32 = (enpassant_target % 8) + 1;
         for file_dir in [1,-1] {
             let square_capture_square: u32 = (single_square_advance_square as i32 + file_dir) as u32;
             if square_capture_square == enpassant_target { 
-                legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, enpassant_target_rank as u32, enpassant_target_file, Flag::EnpassantCapture.into())
+                legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, enpassant_target_file, Flag::EnpassantCapture.into())
             }
         }
     }

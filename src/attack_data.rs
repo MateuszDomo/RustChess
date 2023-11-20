@@ -42,7 +42,11 @@ impl AttackData {
                     let piece_color = piece & 0b00011000;
 
                     if piece_color == friendly_color {
-                        is_friendly_piece_in_ray_mask = true;
+                        if !is_friendly_piece_in_ray_mask {
+                            is_friendly_piece_in_ray_mask = true;
+                        } else {
+                            break;
+                        }
                     }else {
                         let piece_type = piece & 0b00000111;
                         match piece_type {
@@ -77,17 +81,17 @@ impl AttackData {
                 self.in_check = true;
             }
             // Add attacking pawn to check ray bitmap
-            let row_dir = if friendly_color == SideColor::White.side_color_to_u8() {1} else {-1}; 
+            let rank_dir = if friendly_color == SideColor::White.side_color_to_u8() {1} else {-1}; 
             // Left diagonal pawn threat
-            if (king_rank + row_dir).in_range(1, 8) && (king_file - 1).in_range(1, 8) {
-                let square_number: i32 = ((king_rank + 1 - 1) * 8) + (king_file - 1 - 1);
+            if (king_rank + rank_dir).in_range(1, 8) && (king_file - 1).in_range(1, 8) {
+                let square_number: i32 = ((king_rank + rank_dir - 1) * 8) + (king_file - 1 - 1);
                 if board.squares[square_number as usize] & 0b00000111 == 1 {
                     self.check_ray_bitmap |= 0x01 << square_number;
                 }
             }
             // Left diagonal pawn threat
-            if (king_rank + row_dir).in_range(1, 8) && (king_file + 1).in_range(1, 8) {
-                let square_number: i32 = ((king_rank + 1 - 1) * 8) + (king_file + 1 - 1);
+            if (king_rank + rank_dir).in_range(1, 8) && (king_file + 1).in_range(1, 8) {
+                let square_number: i32 = ((king_rank + rank_dir - 1) * 8) + (king_file + 1 - 1);
                 if board.squares[square_number as usize] & 0b00000111 == 1 {
                     self.check_ray_bitmap |= 0x01 << square_number;
                 }
