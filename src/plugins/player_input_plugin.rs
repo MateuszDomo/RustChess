@@ -112,7 +112,9 @@ fn move_pieces(mut query:  Query<(Entity, &mut Piece, &mut Transform)>, square_x
             } else {
                 enpassant_capture = to_square + 8;
             }
+            // Delete pawn captured through enpassant
             delete_piece(&mut query, &mut commands, enpassant_capture);
+            board.squares[enpassant_capture as usize] = 0;
         }
         _ => (),
     }
