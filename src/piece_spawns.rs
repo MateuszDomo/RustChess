@@ -63,7 +63,7 @@ impl PieceSpawner{
         };
         commands.spawn(SpriteBundle{
             texture: pawn_texture.clone(),
-            transform: Transform{
+            transform: Transform {
                 scale: Vec3::new(self.game_textures.piece_size, self.game_textures.piece_size, 1.),
                 translation: Vec3::new(x, y, 3.0),
                 ..default()

@@ -3,19 +3,24 @@ use bevy::prelude::*;
 use crate::chess_utility::SquareDimensions;
 
 #[derive(Resource)]
-pub struct BoardLayout{
+pub struct BoardLayout { // Dimensions in px
     pub square_xy_positions: [(f32,f32); 64], 
     pub square_dimensions: SquareDimensions,
-
+    pub board_height: u32,
+    pub board_width: u32,
 }
 
 impl BoardLayout{
     pub fn new(mut windows: Query<&mut Window>, square_dimensions: SquareDimensions) -> Self{
-        let window = windows.single_mut();
+        let window: Mut<'_, Window> = windows.single_mut();
         let square_xy_positions: [(f32, f32); 64] = Self::calculate_square_positions(&window,&square_dimensions);
+        let board_height: u32 = square_dimensions.height * 8; 
+        let board_width: u32 = square_dimensions.width * 8; 
         return BoardLayout{
             square_xy_positions: square_xy_positions,
             square_dimensions: square_dimensions,
+            board_height: board_height,
+            board_width: board_width,
         }
     }
 

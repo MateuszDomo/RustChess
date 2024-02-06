@@ -70,6 +70,9 @@ pub struct MoveSoundEvent {
     pub move_sound: MoveSounds,
 }
 
+#[derive(Event)]
+pub struct PawnPromotionEvent;
+
 pub fn square_from_rank_file(rank: u32, file: u32) -> u32 {
     return (rank - 1) * 8 + (file - 1);
 }

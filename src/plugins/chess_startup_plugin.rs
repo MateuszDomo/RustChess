@@ -51,7 +51,7 @@ fn chess_setup_system(
     // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
     // Double Check FEN: 2k5/8/8/5q2/4r3/8/2K5/4Q3 b - -
     // 
-    let fen_string = String::from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -");
+    let fen_string = String::from("rnbqkb2/1pppppPP/8/8/8/8/pPPPPP2/1NBQKBNR w KQkq -");
     let game_state: GameState = GameState::new(&fen_string);
     
     let piece_spawner = PieceSpawner::new(game_textures.clone(), board_layout.square_xy_positions);

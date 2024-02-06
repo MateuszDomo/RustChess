@@ -40,7 +40,7 @@ fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_dat
     // Advance one square
     let single_square_advance_rank = starting_rank as i32 + direction;
     let promote: bool = single_square_advance_rank == 8 && selected_piece_color == SideColor::White.side_color_to_u8() ||
-            single_square_advance_rank == 0 && selected_piece_color == SideColor::Black.side_color_to_u8();
+            single_square_advance_rank == 1 && selected_piece_color == SideColor::Black.side_color_to_u8();
 
     let single_square_advance_square = square_from_rank_file(single_square_advance_rank as u32, starting_file);
     if can_move_with_check_and_pin(attack_data, selected_square, single_square_advance_square) && single_square_advance_rank.in_range(1, 8)  && board.squares[single_square_advance_square as usize] == 0 {
