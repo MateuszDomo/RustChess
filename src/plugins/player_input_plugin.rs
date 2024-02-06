@@ -64,7 +64,6 @@ fn mouse_input_system(
                     highlight_legal_move_event.send(HighlightLegalMovesEvent {highlight_new_moves: true, legal_moves: Some(legal_moves)});
                     return;
                 }
-
                 let legal_moves = legal_move_generator(game_state.as_ref(), previously_selected_square);
 
                 // Capture/Move

@@ -2,11 +2,10 @@
 use crate::{chess_utility::{square_from_rank_file, SideColor, print_bitmap}, attack_data::AttackData, piece_move::{PieceMove, Flag}, game_state::GameState}; 
 
 // TODO: legal_move_generator should take in attack data as a parameter. More efficient + Dependency Injection.
-pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<PieceMove>{
+pub fn legal_move_generator(game_state: &GameState, square_number: u32) -> Vec<PieceMove> {
     let piece: u8 = game_state.board.squares[square_number as usize];
     let mut attack_data = AttackData::new(&game_state.board,game_state.next_color_to_move.side_color_to_u8());
     attack_data.calculate_attack_data(&game_state.board, game_state.next_color_to_move.side_color_to_u8());
-
     match piece & 0b00000111{
         1 => {
             return pawn_move_generation(square_number, game_state, &attack_data);
@@ -52,7 +51,7 @@ fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_dat
     for file_dir in [1,-1] {
         let square_capture_file: u32 = (starting_file as i32 + file_dir) as u32;
         let square_capture_square: u32 = (single_square_advance_square as i32 + file_dir) as u32;
-        if can_move_with_check_and_pin(attack_data, selected_square, square_capture_square) && single_square_advance_rank.in_range(1,8) {
+        if square_capture_square.in_range(0,63) && can_move_with_check_and_pin(attack_data, selected_square, square_capture_square) {
             let flag: Flag = if promote {Flag::Promote} else {Flag::Capture};
             if (square_capture_file).in_range(1,8) && board.squares[square_capture_square as usize] != 0 && selected_piece_color != (board.squares[square_capture_square as usize] & 0b00011000) {
                 legal_moves.push_square_from_rank_and_file(starting_rank, starting_file, single_square_advance_rank as u32, square_capture_file, flag.clone().into());
@@ -91,7 +90,7 @@ fn pawn_move_generation(selected_square: u32, game_state: &GameState, attack_dat
 
 
 fn is_pawn_starting_position(rank: u32, selected_piece_color: u8) -> bool {
-    match (rank,selected_piece_color){
+    match (rank,selected_piece_color) {
         (2,0b00001000) | (7,0b00010000) => return true,
         _ => return false,
     }
@@ -171,7 +170,6 @@ fn knight_move_generation(selected_square: u32, game_state: &GameState, attack_d
             if piece_color == selected_piece_color  {
                 continue;
             }
-
             if !can_move_with_check_and_pin(attack_data, selected_square, target_square as u32) {
                 continue;
             }

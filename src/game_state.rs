@@ -68,7 +68,8 @@ impl GameState {
     }
     fn is_possible_move(&self) -> bool {
             for square_number in 0..64 {
-                if self.board.contains_piece(square_number) && self.board.piece_color_to_side_color(square_number) != self.next_color_to_move {
+                let contains_piece= self.board.contains_piece(square_number);
+                if  !contains_piece || (contains_piece && self.board.piece_color_to_side_color(square_number) != self.next_color_to_move) {
                     continue;
                 }
                 let legal_moves: Vec<PieceMove> = legal_move_generator(self, square_number as u32);
